@@ -1,0 +1,6 @@
+We will provide you with a name [NAME], and a number [NUMBER].  Please output [NAME] [NUMBER] of times, each separated by a newline.  Here are a few examples:
+{example_str}
+
+Now, here are the variables we want you to use:
+[NAME]: {name}
+[NUMBER]: {number}

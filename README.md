@@ -1,2 +1,24 @@
 # XDLLMSentimentAnalysis
-Repo for Cross-Domain Sentiment Analysis with LLMs
+Cross-Domain Sentiment Analysis with LLMs
+
+## Usage
+
+`python main.py --config configs/{config} [arg1 val1]...`
+
+## Project hierarchy
+
+`data/` where any custom data that needs to be downloaded is stored, excluding cached data from third-party datasets.
+
+`datasets/` our implementations/wrappers of datasets we're using.
+
+`runs/` where outputs/experimental results are stored.  Each experiment is stored in a folder named with its id, with output results as JSONL (JSON-list) files.
+
+`prompts/` contains prompt templates to be read in and formatted.
+
+`models/` code that loads the models we want to use.
+
+`configs/` stores YAML config files.  Each config completely describes an experiment.
+
+`config.py` manages and defines the `CFG` object, which contains all experiment configurations.
+
+`main.py` main function that reads a config file and creates the configuration, runs an experiment, and writes the results to a folder.
