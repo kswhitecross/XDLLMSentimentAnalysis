@@ -3,7 +3,14 @@ Cross-Domain Sentiment Analysis with LLMs
 
 ## Usage
 
+To run an experiment, specify a config file (default: `configs/default.yaml`).
+
 `python main.py --config configs/{config} [arg1 val1]...`
+
+Any arguments in the config can be manually overridden by specifying their name and the value to set, after specifying the config. For example to specify a different model than the one in the config:
+
+`python main.py --config configs/default.yaml model.name 'meta-llama/Llama-3.2-1B'`
+
 
 ## Project hierarchy
 
