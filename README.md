@@ -19,6 +19,14 @@ Cross-Domain Sentiment Analysis with LLMs
 
 `configs/` stores YAML config files.  Each config completely describes an experiment.
 
+`notebooks/` stores `.ipynb` notebooks, used for data exploration and visualization.
+
 `config.py` manages and defines the `CFG` object, which contains all experiment configurations.
 
 `main.py` main function that reads a config file and creates the configuration, runs an experiment, and writes the results to a folder.
+
+## Requriments (that I can think of)
+- [`torch`](https://pytorch.org/)
+- [`transformers`](https://huggingface.co/docs/transformers/installation)
+- [`yacs`](https://pypi.org/project/yacs/)
+- [`flash-attn`](https://github.com/Dao-AILab/flash-attention)
