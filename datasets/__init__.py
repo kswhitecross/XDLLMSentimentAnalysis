@@ -2,7 +2,7 @@
 Datasets package.  Contains all custom implementations of datasets.
 """
 from .reddit import RedditDataset
-from .template import SampleDataset
+from .sample_dataset import SampleDataset
 
 
 def get_dataset(dataset_name: str, **kwargs):

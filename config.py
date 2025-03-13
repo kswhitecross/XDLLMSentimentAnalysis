@@ -42,12 +42,11 @@ def get_config_defaults() -> CfgNode:
     cfg.exp.d1_name = "sample"
     cfg.exp.d2_name = "sample"
     # splits for each of the two datasets used
-    # for 'sample', options are 'first', 'second'
-    cfg.exp.d1_split = "first"
-    cfg.exp.d2_split = "second"
+    # for 'sample', options are 'split1', 'split2'
+    cfg.exp.d1_split = "split1"
+    cfg.exp.d2_split = "split2"
     # max number of tokens that we should allow the model to generate
     cfg.exp.max_generate = 256
-
 
     # ====== Model Settings ======
     cfg.model = CfgNode()
@@ -62,7 +61,6 @@ def get_config_defaults() -> CfgNode:
     cfg.model.name = 'meta-llama/Llama-3.2-1B-Instruct'
     # Use flash attention, a GPU-only optimization of self-attention
     cfg.model.use_flash_attn = True
-
     return cfg
 
 
@@ -89,3 +87,10 @@ def finalize_config(p_cfg: CfgNode):
 
 
 CFG = get_config_defaults()
+
+# create the default config if it doesn't exist
+default_config_path = os.path.join('configs', 'default.yaml')
+if not os.path.exists(default_config_path):
+    print("Default config file does not exist.  Creating...")
+    with open(default_config_path, 'w') as f:
+        f.write(CFG.dump())
