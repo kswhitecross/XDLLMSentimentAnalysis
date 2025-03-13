@@ -42,7 +42,7 @@ class SampleExperiment(Experiment):
             # for each document in the second dataset...
             for i, item in enumerate(self.dataset2):
                 # randomly sample 2 documents from the first dataset...
-                samp_idx = np.random.choice(len(self.dataset2), size=2, replace=False)
+                samp_idx = np.random.choice(len(self.dataset2), size=2, replace=False).tolist()
                 doc1 = self.dataset1[samp_idx[0]]
                 doc2 = self.dataset2[samp_idx[1]]
 
@@ -60,7 +60,7 @@ class SampleExperiment(Experiment):
                 # build the test dict
                 test_dict = {
                     "context": context,
-                    "max_gen_tokns": self.max_generate,
+                    "max_gen_tokens": self.max_generate,
                     "doc1_idx": samp_idx[0],
                     "doc2_idx": samp_idx[1],
                     "inq_doc_idx": i,
@@ -91,5 +91,6 @@ class SampleExperiment(Experiment):
             result_dict['justification'] = justification
         return
 
+    @property
     def n_experiments(self):
         return len(self.dataset2)

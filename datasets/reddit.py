@@ -9,7 +9,6 @@ class RedditDataset(Dataset):
     Description here.  #TODO Andrew
     """
     def __init__(self, subreddit: str):
-        super().__init__(self, RedditDataset)
         self.subreddit = subreddit
 
     def __getitem__(self, idx):

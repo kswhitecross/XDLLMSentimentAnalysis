@@ -12,9 +12,9 @@ def get_hf_model(model_name: str, use_flash_attn: bool=True):
         raise ValueError("HF_ACCESS_TOKEN environment variable not set.  Please create a HuggingFace access token and"
                          "set HF_ACCESS_TOKEN to it")
     if use_flash_attn:
-        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto',
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', token=hf_token,
                                                      attn_implementation='flash_attention_2', torch_dtype=torch.bfloat16)
     else:
-        model = AutoModelForCausalLM(model_name, device_map='auto')
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM(model_name, device_map='auto', token=hf_token)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, token=hf_token)
     return model, tokenizer

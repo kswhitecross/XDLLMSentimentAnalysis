@@ -30,7 +30,7 @@ def main():
     results_path = os.path.join(CFG.save_path, 'results.jsonl') if not CFG.dont_save else '/dev/null'
     with open(results_path, 'w') as results_file:
         # create tqdm progress bar
-        pbar = tqdm(experiment_iter, experiment.n_experiments, desc='Running experiment')
+        pbar = tqdm(experiment_iter, desc='Running experiment', total=experiment.n_experiments)
         for test_dict in pbar:
             context = test_dict['context']
             max_generate = test_dict['max_gen_tokens']
@@ -56,6 +56,7 @@ def main():
             # save results
             if not CFG.save_context:
                 del test_dict['context']
+                del test_dict['prompt']
             results_file.write(json.dumps(test_dict) + '\n')
             results_file.flush()
 

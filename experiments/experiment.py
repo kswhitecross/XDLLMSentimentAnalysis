@@ -41,8 +41,8 @@ class Experiment(ABC):
         """
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def n_experiments(self):
         """
         The length of the experiment generator, aka the number of experiments.
