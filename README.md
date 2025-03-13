@@ -18,6 +18,8 @@ Any arguments in the config can be manually overridden by specifying their name 
 
 `datasets/` our implementations/wrappers of datasets we're using.
 
+`experiments/` our implementations of each different experiment we want to run.  
+
 `runs/` where outputs/experimental results are stored.  Each experiment is stored in a folder named with its id, with output results as JSONL (JSON-list) files.
 
 `prompts/` contains prompt templates to be read in and formatted.
@@ -37,3 +39,4 @@ Any arguments in the config can be manually overridden by specifying their name 
 - [`transformers`](https://huggingface.co/docs/transformers/installation)
 - [`yacs`](https://pypi.org/project/yacs/)
 - [`flash-attn`](https://github.com/Dao-AILab/flash-attention)
+- [`tqdm`](https://tqdm.github.io/)
