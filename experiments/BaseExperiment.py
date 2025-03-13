@@ -1,7 +1,7 @@
 """
 This file contains the Experiment Base class, which defines the methods an experiment must have.
 """
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from typing import Generator, Any
 
 
