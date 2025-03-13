@@ -1,0 +1,17 @@
+Please consider and pay attention to the following 2 'in-context' documents, and then score the sentiment of a final 'inquiry' document that follows on a five-point scale (from 1-5), with a score of 1 being the most negative sentiment, and a score of 5 being the most positive sentiment.  For example, [[Score]]: 3.
+
+Please first output a few-sentence justification of your score, followed by your score in the following format:
+[[Justification]]: [Your justification here]
+[[Score]]: [Your score here]
+
+
+Here are the two 'in-context' documents to consider:
+Document 1:
+{doc1}
+
+Document 2:
+{doc2}
+
+Here is the 'inquiry' document for you to score:
+Inquiry Document:
+{inq_doc}

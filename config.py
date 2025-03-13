@@ -35,9 +35,19 @@ def get_config_defaults() -> CfgNode:
     # ====== Experiment Settings ======
     cfg.exp = CfgNode()
     # which experiment to run?
-    # options: ...
-    cfg.exp.name = "Unk"
-    # more experiment related settings here...
+    # 'sample_experiment' to run a sample, experiment for debugging purposes
+    cfg.exp.name = "sample_experiment"
+    # names and splits for the two datasets used
+    # 'sample' for a very basic, sample dataset
+    cfg.exp.d1_name = "sample"
+    cfg.exp.d2_name = "sample"
+    # splits for each of the two datasets used
+    # for 'sample', options are 'first', 'second'
+    cfg.exp.d1_split = "first"
+    cfg.exp.d2_split = "second"
+    # max number of tokens that we should allow the model to generate
+    cfg.exp.max_generate = 256
+
 
     # ====== Model Settings ======
     cfg.model = CfgNode()
