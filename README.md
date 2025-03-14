@@ -44,6 +44,6 @@ To run experiments on the CPU, disable flash attention by specifying `model.use_
 - [`transformers`](https://huggingface.co/docs/transformers/installation)
 - [`accelerate`](https://pypi.org/project/accelerate/)
 - [`yacs`](https://pypi.org/project/yacs/)
-- [`flash-attn`](https://github.com/Dao-AILab/flash-attention)
+- [`flash-attn`](https://github.com/Dao-AILab/flash-attention) (gpu-only)
 - [`tqdm`](https://tqdm.github.io/)
 - [`bitsandbytes`](https://huggingface.co/docs/bitsandbytes/main/en/installation)
