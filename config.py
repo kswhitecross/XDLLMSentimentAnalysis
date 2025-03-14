@@ -61,6 +61,8 @@ def get_config_defaults() -> CfgNode:
     cfg.model.name = 'meta-llama/Llama-3.2-1B-Instruct'
     # Use flash attention, a GPU-only optimization of self-attention
     cfg.model.use_flash_attn = True
+    # Quantize the model, only matters if model.use_flash_attn is False
+    cfg.model.quantize = False
     return cfg
 
 

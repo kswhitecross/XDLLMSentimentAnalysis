@@ -6,7 +6,7 @@ import os
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-def get_hf_model(model_name: str, use_flash_attn: bool=True):
+def get_hf_model(model_name: str, use_flash_attn: bool=True, quantize: bool=False, **kwargs):
     hf_token = os.environ.get("HF_ACCESS_TOKEN", default=None)
     if hf_token is None:
         raise ValueError("HF_ACCESS_TOKEN environment variable not set.  Please create a HuggingFace access token and"
@@ -15,6 +15,10 @@ def get_hf_model(model_name: str, use_flash_attn: bool=True):
         model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', token=hf_token,
                                                      attn_implementation='flash_attention_2', torch_dtype=torch.bfloat16)
     else:
-        model = AutoModelForCausalLM(model_name, device_map='auto', token=hf_token)
+        if quantize:
+            model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', token=hf_token)
+        else:
+            #TODO: quantize the model on cpu
+            model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', token=hf_token, torch_dtype=torch.bfloat16)
     tokenizer = AutoTokenizer.from_pretrained(model_name, token=hf_token)
     return model, tokenizer

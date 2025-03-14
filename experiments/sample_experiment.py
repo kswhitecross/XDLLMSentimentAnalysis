@@ -94,3 +94,10 @@ class SampleExperiment(Experiment):
     @property
     def n_experiments(self):
         return len(self.dataset2)
+
+    @staticmethod
+    def tqdm_metrics_dict(result_dict: dict[str, Any]) -> dict[str, Any]:
+        ret_dict = {
+            "score": result_dict['score'],
+        }
+        return ret_dict

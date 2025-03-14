@@ -11,6 +11,11 @@ Any arguments in the config can be manually overridden by specifying their name 
 
 `python main.py --config configs/default.yaml model.name 'meta-llama/Llama-3.2-1B'`
 
+### Running on CPU
+
+To run experiments on the CPU, disable flash attention by specifying `model.use_flash_attn False`.  For example,
+
+`python main.py use_flash_attn False`
 
 ## Project hierarchy
 
@@ -37,6 +42,8 @@ Any arguments in the config can be manually overridden by specifying their name 
 ## Requriments (that I can think of)
 - [`torch`](https://pytorch.org/)
 - [`transformers`](https://huggingface.co/docs/transformers/installation)
+- [`accelerate`](https://pypi.org/project/accelerate/)
 - [`yacs`](https://pypi.org/project/yacs/)
 - [`flash-attn`](https://github.com/Dao-AILab/flash-attention)
 - [`tqdm`](https://tqdm.github.io/)
+- [`bitsandbytes`](https://huggingface.co/docs/bitsandbytes/main/en/installation)

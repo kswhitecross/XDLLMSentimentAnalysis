@@ -13,7 +13,7 @@ from experiments import get_experiment
 def main():
     # create model, tokenizer
     print("Loading model...")
-    model, tokenizer = get_model(CFG.model.type, CFG.model.name, CFG.model.use_flash_attn)
+    model, tokenizer = get_model(CFG.model.type, CFG.model.name, CFG.model.use_flash_attn, CFG.model.quantize)
 
     # create experiment
     print("Creating Experiment")
@@ -52,6 +52,7 @@ def main():
 
             # update tqdm
             postfix = experiment.tqdm_metrics_dict(test_dict)
+            pbar.set_postfix(postfix)
 
             # save results
             if not CFG.save_context:
