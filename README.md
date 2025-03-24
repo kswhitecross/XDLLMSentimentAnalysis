@@ -17,6 +17,16 @@ To run experiments on the CPU, disable flash attention by specifying `model.use_
 
 `python main.py model.use_flash_attn False`
 
+### Debugging
+
+To see the input/output of the at each step of the experiment, set `verbose` to `True`.  For example,
+
+`python main.py verbose True`
+
+Additionally, to stop the experiment after a single run, use the `short_circuit` option:
+
+`python main.py verbose True short_circuit True`
+
 ## Project hierarchy
 
 `data/` where any custom data that needs to be downloaded is stored, excluding cached data from third-party datasets.

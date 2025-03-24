@@ -45,6 +45,15 @@ def main():
             # evaluate output
             model_answer = tokenizer.decode(output_tokens[0][n_input_tokens:], skip_special_tokens=True)
             test_dict['model_answer'] = model_answer
+
+            # debugging
+            if CFG.verbose:
+                print("=" * 20)
+                print("Model input:")
+                print(context)
+                print("Model output:")
+                print(model_answer)
+                print("=" * 20)
             experiment.evaluate_results(test_dict)
 
             # update tqdm
@@ -57,6 +66,9 @@ def main():
                 del test_dict['prompt']
             results_file.write(json.dumps(test_dict) + '\n')
             results_file.flush()
+
+            if CFG.short_circuit:
+                break
 
     # create completed file
     with open(os.path.join(CFG.save_path, 'completed.txt'), 'w') as _:

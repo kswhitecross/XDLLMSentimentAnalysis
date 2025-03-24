@@ -26,6 +26,10 @@ def get_config_defaults() -> CfgNode:
     cfg.save_dir = "runs/"
     # Save the context from each LLM forward pass?
     cfg.save_context = False
+    # Print out model inputs / outputs?
+    cfg.verbose = False
+    # Stop after a single run
+    cfg.short_circuit = False
     # These will be set later
     cfg.run_id = None
     cfg.name_id = None
