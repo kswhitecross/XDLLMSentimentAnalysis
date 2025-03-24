@@ -15,7 +15,7 @@ Any arguments in the config can be manually overridden by specifying their name 
 
 To run experiments on the CPU, disable flash attention by specifying `model.use_flash_attn False`.  For example,
 
-`python main.py use_flash_attn False`
+`python main.py model.use_flash_attn False`
 
 ## Project hierarchy
 
@@ -44,6 +44,11 @@ To run experiments on the CPU, disable flash attention by specifying `model.use_
 - [`transformers`](https://huggingface.co/docs/transformers/installation)
 - [`accelerate`](https://pypi.org/project/accelerate/)
 - [`yacs`](https://pypi.org/project/yacs/)
-- [`flash-attn`](https://github.com/Dao-AILab/flash-attention) (gpu-only)
 - [`tqdm`](https://tqdm.github.io/)
 - [`bitsandbytes`](https://huggingface.co/docs/bitsandbytes/main/en/installation)
+
+### Flash Attention
+
+For major speedups on longer context experiments, flash attention reduces the memory impact and improves performance.  However, it is complex to install, so only recommended for systems that will be used to run major experiemnts.
+
+- [`flash-attn`](https://github.com/Dao-AILab/flash-attention) (gpu-only)

@@ -42,7 +42,7 @@ def get_config_defaults() -> CfgNode:
     cfg.exp.d1_name = "sample"
     cfg.exp.d2_name = "sample"
     # splits for each of the two datasets used
-    # for 'sample', options are 'split1', 'split2'
+    # for 'sample', options are 'split1', 'split2';q
     cfg.exp.d1_split = "split1"
     cfg.exp.d2_split = "split2"
     # max number of tokens that we should allow the model to generate
