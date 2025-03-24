@@ -33,6 +33,7 @@ def get_config_defaults() -> CfgNode:
     cfg.dont_save = None
 
     # ====== Experiment Settings ======
+    # these settings will be passed as keyword arguments directly to get_experiment
     cfg.exp = CfgNode()
     # which experiment to run?
     # 'sample_experiment' to run a sample, experiment for debugging purposes

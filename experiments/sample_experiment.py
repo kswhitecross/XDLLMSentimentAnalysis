@@ -16,10 +16,10 @@ class SampleExperiment(Experiment):
     """
 
     def __init__(self, model, tokenizer, *args,
-                 dataset1_name: str = "sample",
-                 dataset1_split: str = "first",
-                 dataset2_name: str = "sample",
-                 dataset2_split: str = "second",
+                 d1_name: str = "sample",
+                 d1_split: str = "first",
+                 d2_name: str = "sample",
+                 d2_split: str = "second",
                  max_generate: int = 256,
                  **kwargs):
         super().__init__("SampleExperiment")
@@ -27,8 +27,8 @@ class SampleExperiment(Experiment):
         self.max_generate = max_generate
 
         # create datasets
-        self.dataset1 = get_dataset(dataset1_name, split=dataset1_split)
-        self.dataset2 = get_dataset(dataset2_name, split=dataset2_split)
+        self.dataset1 = get_dataset(d1_name, split=d1_split)
+        self.dataset2 = get_dataset(d2_name, split=d2_split)
 
         # load the prompt
         with open(os.path.join('prompts', 'SampleExperimentPrompt.txt')) as p:

@@ -17,10 +17,7 @@ def main():
 
     # create experiment
     print("Creating Experiment")
-    experiment = get_experiment(CFG.exp.name, model, tokenizer,
-                                dataset1_name=CFG.exp.d1_name, dataset2_name=CFG.exp.d2_name,
-                                dataset1_split=CFG.exp.d1_split, dataset2_split=CFG.exp.d2_split,
-                                max_generate=CFG.exp.max_generate)
+    experiment = get_experiment(CFG.exp.name, model, tokenizer, **CFG.exp)
 
     # initialize experiment
     print("Starting Experiment")
