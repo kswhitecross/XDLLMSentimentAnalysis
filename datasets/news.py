@@ -12,7 +12,7 @@ FILE_PATH = "/Users/polinapetrova/data/nyt-metadata.csv"
 
 class NewsDataset(Dataset):
     """
-    Class to read data relating to NYT news articles.
+    Class to read data relating to NYT news articles.   #Polina
     """
     def __init__(self, file_path=FILE_PATH, chunksize=100000):
         """

@@ -11,7 +11,7 @@ FILE_PATH = "/Users/polinapetrova/data/booksummaries.txt"
 
 class BooksDataset(Dataset):
     """
-    Class to read data relating to book summaries.
+    Class to read data relating to book summaries.  #Polina
     """
     def __init__(self, file_path=FILE_PATH, **kwargs):
         assert os.path.exists(file_path), f"File not found: {file_path}"

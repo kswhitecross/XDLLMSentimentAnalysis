@@ -12,7 +12,7 @@ FILE_PATH = "/Users/polinapetrova/data/YoutubeCommentsDataSet.csv"
 
 class YoutubeDataset(Dataset):
     """
-    Class to read data relating to YouTube comments.
+    Class to read data relating to YouTube comments.    #Polina
     """
     def __init__(self, file_path=FILE_PATH, **kwargs):
         assert os.path.exists(file_path), f"File not found: {file_path}"
