@@ -1,0 +1,24 @@
+Please consider and pay attention to the following IN-CONTEXT documents. 
+After carefully reviewing these IN-CONTEXT documents, please analyze the following INQUIRY document before answering the following questions about the INQUIRY document.
+Output a few-sentence response to each question. Only for the specific question asking to rate your own preference on a five-point scale, follow up your response with your preference rating in this exact format:
+[[Justification]]: [Your justification here]
+[[Rating]]: [Your rating here]
+
+IN-CONTEXT documents: """
+{in_context_docs}
+"""
+
+INQUIRY Document: """
+{inq_doc}
+"""
+
+INQUIRY Questions: """
+Question 1:
+{question1}
+
+Question 2:
+{question2}
+
+Question 3:
+{question3}
+"""

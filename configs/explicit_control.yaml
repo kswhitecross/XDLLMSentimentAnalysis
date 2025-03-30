@@ -1,0 +1,12 @@
+exp:
+  name: explicit_questions_experiment
+  prompt_name: neutral_with_gpt_best_practices.txt
+  d1_name: None
+  num_in_context_samples: None
+  max_num_generated_responses: 1
+  max_generate: 1024
+model:
+  use_flash_attn: false
+name: explicit_control_sample_split2
+save_context: false
+save_dir: runs/explicit/control

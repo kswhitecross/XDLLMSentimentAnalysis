@@ -1,0 +1,49 @@
+Paige's exploration:
+https://www.llama.com/docs/how-to-guides/prompting/ 
+
+
+Should I say please?
+    https://github.com/JPhilipp/politeness-test 
+    https://arxiv.org/abs/2402.14531 
+    Safest bet is yes.
+Ordering of questions first, then documents, or docs then questions? Or ask the question before and after, depending on the length of the doc?
+    https://www.reddit.com/r/LocalLLaMA/comments/1ekq5wv/maybe_a_silly_question_is_it_better_to_place_a/ 
+    https://www.reddit.com/r/LocalLLaMA/comments/1isfk8w/structuring_prompts_with_long_context/ 
+    https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/long-context-tips#example-quote-extraction 
+    https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api#h_21d4f4dc3d 
+    Depends on the model. OpenAI specifically recommends instructs, then context, with some guiding formatting. 
+    But it seems like trial and error otherwise, based on how much the model "forgets". Either way, just don't put it in the middle. 
+
+Prompt Exploration (Mainly on explicit questions, then transferring to implicit and control):
+    First...
+        I used the 3B model with prompts/explicit/experimental/neutral.txt and 2 examples for neg_pos_new_england. 
+        It seemed like it largely disregarded the examples explicitly at least, and also was reluctant to provide explicit opinions "as a chatbot".
+    Then... 
+        tried prompts/explicit/experimental/more_emphasis_on_in_context_examples.txt to try to mention the in-context examples more. 
+        This langugage seemed to help but I didn't know how much weight to put on the examples.
+    Then...
+        noticed it didn't like the word "attitude" so I changed it to "perspective" in prompts/explicit/experimental/neutral_with_gpt_best_practices_better_word_for_attitude.txt
+        I also played with encouraging it to give an opinion in prompts/explicit/experimental/more_emphasis_on_in_context_examples_and_encourage_opinion.txt but didn't exactly like this approach as it felt too forced
+    Then...
+        despite Llama being a different model, I took into account how OpenAI recommends wrapping the context in ###s or """s to make it more clear it is different from the instructions.
+        So I did that and I seemed to get more consistent outputs, with the instructions at the TOP not bottom, and doing both made it weird (possibly limitation of the smaller 3B model though)
+        HOWEVER, depending on how long our in-context examples are, we may still want to see if the bottom works better for the instructions
+    Then... 
+        I played with different examples, from 1-5. 
+        The less in-context examples (1-2), just from manually inspecting (not programmatically), the less it explicitly mentioned them at all in the answers.
+        The more in-context examples (3-5), the more it explicitly cited the different document numbers when answering about the inquiry document.
+        HOWEVER, generally seemed more sensitive to the in-context examples with a lower # of examples when using the best practices from OpenAI (I know, despite this being Llama)
+            so I again wonder if this is just due to the model size?
+    Lastly... 
+        Trying out how to better extract the response, we could ask it to produce it in JSON per Llama's 'Limiting Extraneous Tokens' in https://www.llama.com/docs/how-to-guides/prompting/.
+        This seemed to work pretty well, except sometimes it gets confused and provides a justification/rating for every question. Likely a limitation of the model size.
+        It also has way less issues with answering the implicit questions as those are more straightforward.
+
+
+
+
+
+
+
+
+

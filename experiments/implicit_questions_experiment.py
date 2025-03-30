@@ -1,5 +1,5 @@
 """
-This file contains an implementation of the explicit questions experiment.
+This file contains an implementation of the implicit questions experiment.
 """
 from datasets import get_dataset
 import os
@@ -9,9 +9,9 @@ import numpy as np
 import re
 import random 
 
-class ExplicitQuestionsExperiment(Experiment):
+class ImplicitQuestionsExperiment(Experiment):
     """
-     An experiment where the LLM is *explicitly* asked about its feelings/score on an inquiry example,
+     An experiment where the LLM is *implicitly* asked about its feelings/score on an inquiry example,
      based on a specified number of in-context examples. 
     """
 
@@ -24,7 +24,7 @@ class ExplicitQuestionsExperiment(Experiment):
                 num_in_context_samples: int = 2,
                 max_generate: int = 256,
                  **kwargs):
-        super().__init__("explicit_questions_experiment")
+        super().__init__("implicit_questions_experiment")
         self.tokenizer = tokenizer
         self.max_generate = max_generate
         self.num_in_context_samples = num_in_context_samples
@@ -39,15 +39,15 @@ class ExplicitQuestionsExperiment(Experiment):
 
         # load the prompt, which uses the control prompt on the second dataset if our in-context dataset is not provided
         with open(os.path.join('prompts', 
-                               'explicit', 
+                               'implicit', 
                                'control' if self.in_context_dataset == None else 'experimental', 
                                prompt_name)) as p:
                     self.prompt_template = p.read()
 
-        # load the explicit questions to randomly place in the prompt, with their indices tracked
-        with open(os.path.join('data', 'questions', 'explicit_questions.txt')) as q:
+        # load the implicit questions to randomly place in the prompt, with their indices tracked
+        with open(os.path.join('data', 'questions', 'implicit_questions.txt')) as q:
                     raw_questions = q.readlines()
-                    self.explicit_questions_with_idx = [(i, question.strip()) for i, question in enumerate(raw_questions)]
+                    self.implicit_questions_with_idx = [(i, question.strip()) for i, question in enumerate(raw_questions)]
 
     def _get_experiment_generator(self) -> Generator[dict[str, Any], None, None]:
         """
@@ -61,9 +61,9 @@ class ExplicitQuestionsExperiment(Experiment):
                     samp_idx = np.random.choice(len(self.in_context_dataset), size=self.num_in_context_samples, replace=False).tolist()
                     in_context_docs = "\n\n".join([f"IN-CONTEXT Document {i+1}:\n{self.in_context_dataset[position]['content']}" for i, position in enumerate(samp_idx)])
 
-                # randomly order the explicit questions to add into the prompt template, without impacting the original order 
-                shuffled_explicit_questions_with_idx = random.sample(self.explicit_questions_with_idx, len(self.explicit_questions_with_idx))
-                question_dict = {f"question{i+1}": shuffled_explicit_questions_with_idx[i][1] for i in range(len(shuffled_explicit_questions_with_idx))}
+                # randomly order the implicit questions to add into the prompt template, without impacting the original order 
+                shuffled_implicit_questions_with_idx = random.sample(self.implicit_questions_with_idx, len(self.implicit_questions_with_idx))
+                question_dict = {f"question{i+1}": shuffled_implicit_questions_with_idx[i][1] for i in range(len(shuffled_implicit_questions_with_idx))}
 
                 # create the prompt, depending on whether it's a control or not
                 prompt = (
@@ -72,8 +72,6 @@ class ExplicitQuestionsExperiment(Experiment):
                 
                 # chat templatize the prompt, IF USIING the instruct model that has one
                 # https://huggingface.co/docs/transformers/main/en/chat_templating
-                
-                # TODO: Determine the impact of the system prompt on our analysis/goals
                 chat = [
                     {"role": "system", "content": "You are a helpful chatbot"},
                     {"role": "user", "content": prompt},
@@ -87,7 +85,7 @@ class ExplicitQuestionsExperiment(Experiment):
                     "in_context_doc_indices": None if self.in_context_dataset == None else samp_idx,
                     "inq_doc_idx": i,
                     "prompt": prompt,
-                    "question_order": [shuffled_explicit_questions_with_idx[i][0] for i in range(len(shuffled_explicit_questions_with_idx))]
+                    "question_order": [shuffled_implicit_questions_with_idx[i][0] for i in range(len(shuffled_implicit_questions_with_idx))]
                 }
                 
                 yield test_dict
@@ -98,23 +96,6 @@ class ExplicitQuestionsExperiment(Experiment):
         Process the model's answer, and add the results to the result_dict
         """
         ans = result_dict['model_answer']
-        result_dict['rating'] = None
-        result_dict['justification'] = None
-
-        # get the score for the attitude Q
-        score_rule = "\[\[Rating\]\]: \d"
-        if match := re.search(score_rule, ans):
-            score = int(match.group().split(' ')[1])
-            result_dict['rating'] = score
-
-        # get the justification for the attitude Q
-        # thanks chatgpt for this regex...
-        just_rule = "\[\[Justification\]\]: ([\s\S]*?)\s*\[\[Score\]\]"
-        if match := re.search(just_rule, ans):
-            justification = match.group(1)
-            result_dict['justification'] = justification
-
-
         # TODO: Apply sentiment analysis to each question answer extracted
         # TODO: Psychobench questionnaire to same model instance to add results to the dict
         return
