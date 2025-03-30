@@ -57,19 +57,16 @@ class ExplicitQuestionsExperiment(Experiment):
         def gen():
             # for each document in the dataset of inquiry...
             for i, item in enumerate(self.inquiry_dataset):
-                # randomly sample 2 documents from the in-context dataset...
+                # randomly sample dynamic number of documents from the in-context dataset and structure them for the prompt
                 samp_idx = np.random.choice(len(self.in_context_dataset), size=self.num_in_context_samples, replace=False).tolist()
+                in_context_docs = "\n\n".join([f"IN-CONTEXT Document {i+1}:\n{self.in_context_dataset[position]['content']}" for i, position in enumerate(samp_idx)])
 
-                # TODO dynamically label a bunch of variables to put in the prompt template
-                doc1 = self.in_context_dataset[samp_idx[0]]
-                doc2 = self.in_context_dataset[samp_idx[1]]
-                
                 # randomly order the explicit questions to add into the prompt template, without impacting the original order 
                 shuffled_explicit_questions_with_idx = random.sample(self.explicit_questions_with_idx, len(self.explicit_questions_with_idx))
                 question_dict = {f"question{i+1}": shuffled_explicit_questions_with_idx[i][1] for i in range(len(shuffled_explicit_questions_with_idx))}
 
                 # create the prompt
-                prompt = self.prompt_template.format(doc1=doc1['content'], doc2=doc2['content'],
+                prompt = self.prompt_template.format(in_context_docs=in_context_docs,
                                                      inq_doc=item['content'], **question_dict)
                 
                 # chat templatize the prompt, IF USIING the instruct model that has one
