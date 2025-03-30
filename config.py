@@ -53,6 +53,13 @@ def get_config_defaults() -> CfgNode:
     # max number of tokens that we should allow the model to generate
     cfg.exp.max_generate = 256
 
+    # specifies how many samples from the in-context domain to provide to the freshly initialized model
+    cfg.exp.num_in_context_samples = 2
+    # specifies how many responses to generate before cutting it off for the second domain...
+    # # if None then it responds to the full set unless short-circuited
+    cfg.exp.max_num_generated_responses = None
+    # specifies the exact prompt to use 
+    cfg.exp.prompt_name = "SampleExperimentPrompt.txt"
     # ====== Model Settings ======
     cfg.model = CfgNode()
     # model type
