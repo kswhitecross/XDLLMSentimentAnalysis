@@ -4,6 +4,8 @@ runs/
 test_script.py
 semantic_runs.sh
 data/*
+!/data/questions
+!/data/neg_pos_new_england
 download/
 old_runs/
 scripts/
