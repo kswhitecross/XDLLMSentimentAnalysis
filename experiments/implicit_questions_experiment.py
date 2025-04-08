@@ -28,6 +28,7 @@ class ImplicitQuestionsExperiment(Experiment):
         self.tokenizer = tokenizer
         self.max_generate = max_generate
         self.num_in_context_samples = num_in_context_samples
+        self.sentiment_model_name = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 
         # create datasets
         if d1_name != None:
@@ -90,14 +91,16 @@ class ImplicitQuestionsExperiment(Experiment):
                 
                 yield test_dict
         return gen()
+    
+  
 
     def evaluate_results(self, result_dict: dict[str, Any]):
         """
         Process the model's answer, and add the results to the result_dict
         """
         ans = result_dict['model_answer']
-        # TODO: Apply sentiment analysis to each question answer extracted
-        # TODO: Psychobench questionnaire to same model instance to add results to the dict
+        sentiment_distro = self.get_sentiment_from_pretrained_model(ans, self.sentiment_model_name)
+        result_dict['sentiment_scores'] = sentiment_distro.tolist() 
         return
 
     @property
@@ -107,6 +110,6 @@ class ImplicitQuestionsExperiment(Experiment):
     @staticmethod
     def tqdm_metrics_dict(result_dict: dict[str, Any]) -> dict[str, Any]:
         ret_dict = {
-            "rating": result_dict['rating'],
+            "sentiment_scores": result_dict['sentiment_scores'],
         }
         return ret_dict

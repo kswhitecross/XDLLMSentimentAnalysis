@@ -3,7 +3,11 @@ This file contains the Experiment Base class, which defines the methods an exper
 """
 from abc import ABC, abstractmethod
 from typing import Generator, Any
-
+from transformers import AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoConfig
+import numpy as np
+from scipy.special import softmax
+import matplotlib.pyplot as plt
 
 class Experiment(ABC):
     """
@@ -32,6 +36,47 @@ class Experiment(ABC):
                 assert 'max_gen_tokens' in exp
                 yield exp
         return wrapped_experiment()
+    
+
+    def get_sentiment_from_pretrained_model(self, model_answer: str, sentiment_model_path: str):
+        # sentiment_model_path = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+        # Load the tokenizer and config for the pretrained sentiment analysis model
+        tokenizer = AutoTokenizer.from_pretrained(sentiment_model_path, device_map = 'auto')
+        config = AutoConfig.from_pretrained(sentiment_model_path)
+
+        # Load the pretrained model into PyTorch and encode the input text as numbers for the model to understand
+        model = AutoModelForSequenceClassification.from_pretrained(sentiment_model_path,  device_map = 'auto')
+        encoded_input = tokenizer(model_answer, return_tensors='pt')
+
+        # Outputs the raw scores
+        output = model(**encoded_input)
+        # Turn raw scores into probabilities that sum to 1
+        scores = output[0][0].detach().numpy()
+        scores = softmax(scores)
+
+        # Print labels and scores, ranked
+        # ranking = np.argsort(scores)
+        # ranking = ranking[::-1]
+        # for i in range(scores.shape[0]):
+        #     l = config.id2label[ranking[i]]
+        #     s = scores[ranking[i]]
+        #     print(f"{i+1}) {l} {np.round(float(s), 4)}")
+
+        return scores 
+   
+
+    def plot_sentiment_distribution(scores_across_samples):
+        if len(scores_across_samples) >= 1:
+            labels = range(len(scores_across_samples[0]))
+            mean_scores = np.mean(scores_across_samples)
+            plt.bar(labels, mean_scores, color=['red', 'green', 'blue'])
+            plt.xlabel('Sentiment')
+            plt.ylabel('Average Probability')
+            plt.title('Mean Sentiment Distribution for Texts')
+            plt.show()
+        else:
+            print("No sampled scores provided to plot sentiment distributions")
+
 
     @abstractmethod
     def evaluate_results(self, result_dict: dict[str, Any]):

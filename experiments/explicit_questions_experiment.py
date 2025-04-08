@@ -98,26 +98,10 @@ class ExplicitQuestionsExperiment(Experiment):
         Process the model's answer, and add the results to the result_dict
         """
         ans = result_dict['model_answer']
-        result_dict['rating'] = None
-        result_dict['justification'] = None
-
-        # get the score for the attitude Q
-        score_rule = "\[\[Rating\]\]: \d"
-        if match := re.search(score_rule, ans):
-            score = int(match.group().split(' ')[1])
-            result_dict['rating'] = score
-
-        # get the justification for the attitude Q
-        # thanks chatgpt for this regex...
-        just_rule = "\[\[Justification\]\]: ([\s\S]*?)\s*\[\[Score\]\]"
-        if match := re.search(just_rule, ans):
-            justification = match.group(1)
-            result_dict['justification'] = justification
-
-
-        # TODO: Apply sentiment analysis to each question answer extracted
-        # TODO: Psychobench questionnaire to same model instance to add results to the dict
+        sentiment_distro = self.get_sentiment_from_pretrained_model(ans, self.sentiment_model_name)
+        result_dict['sentiment_scores'] = sentiment_distro.tolist() 
         return
+
 
     @property
     def n_experiments(self):
@@ -126,6 +110,6 @@ class ExplicitQuestionsExperiment(Experiment):
     @staticmethod
     def tqdm_metrics_dict(result_dict: dict[str, Any]) -> dict[str, Any]:
         ret_dict = {
-            "rating": result_dict['rating'],
+            "sentiment_scores": result_dict['sentiment_scores'],
         }
         return ret_dict
