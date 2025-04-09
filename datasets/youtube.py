@@ -18,7 +18,7 @@ class YoutubeDataset(Dataset):
         assert os.path.exists(file_path), f"File not found: {file_path}"
         
         # read youtube comment data (csv)
-        self.data = pd.read_csv(file_path)
+        self.data = pd.read_csv(file_path).dropna()
 
     def __getitem__(self, idx):
         """
@@ -35,4 +35,7 @@ class YoutubeDataset(Dataset):
     
     def __len__(self):
         return len(self.data)
-    
+
+# model = YoutubeDataset()
+# print("Number of articles:", model.__len__())
+# print("Most recent article:", model.__getitem__(-1))
