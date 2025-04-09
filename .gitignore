@@ -9,6 +9,9 @@ data/*
 download/
 old_runs/
 scripts/
+#used by AJC for testing
+/datasets/reddit_data_test.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
