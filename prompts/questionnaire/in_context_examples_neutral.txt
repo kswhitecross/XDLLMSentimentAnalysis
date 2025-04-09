@@ -1,0 +1,6 @@
+Please consider and pay attention to the following IN-CONTEXT documents:
+IN-CONTEXT documents: """
+{in_context_docs}
+"""
+
+After carefully reviewing these IN-CONTEXT documents, follow the instructions below:

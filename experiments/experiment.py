@@ -8,6 +8,7 @@ from transformers import AutoTokenizer, AutoConfig
 import numpy as np
 from scipy.special import softmax
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 class Experiment(ABC):
     """
@@ -63,21 +64,52 @@ class Experiment(ABC):
         #     print(f"{i+1}) {l} {np.round(float(s), 4)}")
 
         return scores 
-   
 
-    def plot_sentiment_distribution(scores_across_samples):
+    def plot_mean_sentiment_scores(scores_across_samples):
         if len(scores_across_samples) >= 1:
-            labels = range(len(scores_across_samples[0]))
+            labels = ['Negative', 'Neutral', 'Positive']
             mean_scores = np.mean(scores_across_samples)
-            plt.bar(labels, mean_scores, color=['red', 'green', 'blue'])
+            plt.bar(labels, mean_scores, color=['red', 'blue', 'green'])
             plt.xlabel('Sentiment')
-            plt.ylabel('Average Probability')
-            plt.title('Mean Sentiment Distribution for Texts')
+            plt.ylabel('Mean Sentiment Score')
+            plt.title('Mean Sentiment Scores Across Samples')
             plt.show()
         else:
-            print("No sampled scores provided to plot sentiment distributions")
+            print("No sampled scores provided to plot mean sentiment scores")
 
+    
+    def plot_sentiment_score_distribution_across_all_3(scores_across_samples):
+        # Flips it on its side
+        neg_scores, neutral_scores, pos_scores = np.array(scores_across_samples).T
 
+        plt.figure(figsize=(10, 5))
+        sns.histplot(neg_scores, color='red', bins=20, label='Negative', kde=True, alpha=0.5)
+        sns.histplot(neutral_scores, color='blue', bins=20,label='Neutral', kde=True, alpha=0.5)
+        sns.histplot(pos_scores, color='green', bins=20,label='Positive', kde=True, alpha=0.5)
+
+        plt.xlabel("Sentiment Score")
+        plt.ylabel("Frequency")
+        plt.legend()
+        plt.title("Distribution of Sentiment Scores")
+        plt.show()
+
+    
+    def plot_predicted_sentiment_counts(scores_across_samples):
+        labels = ['Negative', 'Neutral', 'Positive']
+
+        predicted_labels = []
+        for score in scores_across_samples:
+            predicted_index = np.argmax(score)
+            predicted_labels.append(labels[predicted_index])
+
+        plt.figure(figsize=(8, 6))
+        sns.countplot(x=predicted_labels, palette='coolwarm')
+        plt.xlabel('Sentiment')
+        plt.ylabel('Count')
+        plt.title('Distribution of Predicted Sentiments')
+        plt.show()
+
+    
     @abstractmethod
     def evaluate_results(self, result_dict: dict[str, Any]):
         """
