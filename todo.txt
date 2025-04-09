@@ -1,0 +1,5 @@
+Determine the impact of the system prompt on our analysis/goals
+Finalize the quantity of in-context examples we want for our analysis/goals
+Finalize how explicit we want to be about utilizing the in-context examples to answer inquiry questions
+Finalize whether we want our explicit questions to change to explicitly asking about what "someone" would determine the sentiment of the piece to be
+Finalize instructions at top/bottom for our longer data (especially the reddit posts)

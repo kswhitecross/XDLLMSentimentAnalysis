@@ -11,7 +11,7 @@ class SampleDataset(Dataset):
         self.split = split
         assert split in ['split1', 'split2']
         with open(os.path.join('data', 'sample', f'{self.split}.txt')) as f:
-            self.data = f.readlines()
+            self.data = [line.strip() for line in f.readlines()]
 
     def __getitem__(self, idx):
         return {"content": self.data[idx]}

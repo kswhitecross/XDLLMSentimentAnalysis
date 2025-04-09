@@ -28,6 +28,7 @@ def main():
     with open(results_path, 'w') as results_file:
         # create tqdm progress bar
         pbar = tqdm(experiment_iter, desc='Running experiment', total=experiment.n_experiments)
+        num_generated_responses = 0 
         for test_dict in pbar:
             context = test_dict['context']
             max_generate = test_dict['max_gen_tokens']
@@ -66,8 +67,9 @@ def main():
                 del test_dict['prompt']
             results_file.write(json.dumps(test_dict) + '\n')
             results_file.flush()
+            num_generated_responses += 1
 
-            if CFG.short_circuit:
+            if CFG.short_circuit or num_generated_responses == CFG.exp.max_num_generated_responses:
                 break
 
     # create completed file

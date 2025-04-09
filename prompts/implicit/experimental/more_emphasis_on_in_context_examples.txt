@@ -1,0 +1,18 @@
+Please consider and pay attention to the following IN-CONTEXT documents:
+{in_context_docs}
+
+After carefully reviewing these IN-CONTEXT documents, please analyze the following INQUIRY document before answering the following questions. Ensure that your responses are informed by the contents of both IN-CONTEXT documents as they may provide important context:
+INQUIRY Document:
+{inq_doc}
+
+Now, answer the following three questions about the INQUIRY document, using insights drawn IN-CONTEXT documents where relevant:
+Question 1:
+{question1}
+
+Question 2:
+{question2}
+
+Question 3:
+{question3}
+
+Output a few-sentence response to each question.

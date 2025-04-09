@@ -12,7 +12,7 @@ import re
 class SampleExperiment(Experiment):
     """
     A sample experiment, used to validate the correctness of existing code.  Prompts the LLM to score a document
-     from dataset2 on a scale of 1-5 based on two examlpes from dataset1, with a justification.
+     from dataset2 on a scale of 1-5 based on two examples from dataset1, with a justification.
     """
 
     def __init__(self, model, tokenizer, *args,

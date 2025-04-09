@@ -1,0 +1,15 @@
+Please analyze the following INQUIRY document. Keep in mind that your answers are allowed to reflect a more subjective, opinionated stance rather than strictly factual analysis:
+INQUIRY Document:
+{inq_doc}
+
+Now, answer the following three questions about the INQUIRY document:
+Question 1:
+{question1}
+
+Question 2:
+{question2}
+
+Question 3:
+{question3}
+
+First, output a few-sentence response to each question, adopting a personal viewpoint.

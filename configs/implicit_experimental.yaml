@@ -1,0 +1,11 @@
+exp:
+  num_in_context_samples: 3
+  max_num_generated_responses: 2
+  name: implicit_questions_experiment
+  prompt_name: neutral_with_gpt_best_practices.txt
+  max_generate: 1024
+model:
+  use_flash_attn: false
+name: implicit_experimental_sample_cross_domain
+save_context: false
+save_dir: runs/implicit/experimental

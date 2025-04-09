@@ -1,0 +1,24 @@
+Please consider and pay attention to the following IN-CONTEXT documents. 
+After carefully reviewing these IN-CONTEXT documents, please analyze the following INQUIRY document before answering the following questions about the INQUIRY document in JSON format.
+
+Only reply in JSON format with the fields "question1", "question2", ..., etc. Output a few-sentence response to each question. Then, rate your own perspective on a five-point scale with 1 being the most negative to 5 being the most positive, one time through the fields "justification" and "rating".
+Example answer: {{"question1": "your answer", "question2": "your answer", "question3": "your answer", "justification": "your perspective justification here", "rating": "your perspective rating here"}}
+
+IN-CONTEXT documents: """
+{in_context_docs}
+"""
+
+INQUIRY Document: """
+{inq_doc}
+"""
+
+INQUIRY Questions: """
+Question 1:
+{question1}
+
+Question 2:
+{question2}
+
+Question 3:
+{question3}
+"""
