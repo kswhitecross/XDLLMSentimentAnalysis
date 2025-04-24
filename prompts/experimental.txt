@@ -3,7 +3,6 @@ Given those in-context documents, you are going to be shown a new document, call
 Your goal is to write a concise summary of the inquiry document, written so that the user will be able to decide if they should read the inquiry document.  
 Your summary should be informed by the in-context documents, although some of them may not be relevant to the inquiry document.
 Only for the specific question asking to rate your own attitude on a five-point scale, follow up your response with your attitude rating in this exact format:
-
 [[Justification]]: [Your justification here]
 [[Rating]]: [Your rating here]
 

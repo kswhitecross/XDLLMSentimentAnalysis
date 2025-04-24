@@ -25,17 +25,18 @@ class BookSummaryWithContextExperiment:
 
 
     def generate_response(self, prompt: str) -> str:
-        print(f"Running command: ['ollama', 'run', 'llama-3', prompt]")
+        print(f"Running command: ['ollama', 'run', 'llama3.2', prompt]")
         result = subprocess.run(
-            ["ollama", "run", "llama-3", prompt], capture_output=True, text=True
+            ["ollama", "run", "llama3.2", prompt], capture_output=True, text=True
         )
         print(f"Model Output: {result.stdout}")
         return result.stdout
 
     def _get_experiment_generator(self) -> Generator[dict[str, Any], None, None]:
         def gen():
-            # use only first book summary entry 
-            inquiry_item = self.inquiry_dataset[0]
+            # use random book summary as inquiry doc
+            rand_idx = np.random.choice(len(self.inquiry_dataset))
+            inquiry_item = self.inquiry_dataset[rand_idx]
 
             # book summary inquiry doc
             inq_doc = inquiry_item['summary']
