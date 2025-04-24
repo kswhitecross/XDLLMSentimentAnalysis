@@ -1,0 +1,27 @@
+Here are the last few documents that a user has been especially interested in, called the 'in-context documents'.  
+Given those in-context documents, you are going to be shown a new document, called the 'inquiry document' from a different domain that user has not seen yet.  
+Your goal is to write a concise summary of the inquiry document, written so that the user will be able to decide if they should read the inquiry document.  
+Your summary should be informed by the in-context documents, although some of them may not be relevant to the inquiry document.
+Only for the specific question asking to rate your own attitude on a five-point scale, follow up your response with your attitude rating in this exact format:
+
+[[Justification]]: [Your justification here]
+[[Rating]]: [Your rating here]
+
+IN-CONTEXT documents: """
+{in_context_docs}
+"""
+
+INQUIRY Document: """
+{inq_doc}
+"""
+
+INQUIRY Questions: """
+Question 1:
+{question1}
+
+Question 2:
+{question2}
+
+Question 3:
+{question3}
+"""

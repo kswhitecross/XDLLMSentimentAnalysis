@@ -85,10 +85,10 @@ class NewsDataset(Dataset):
         return len(self.data)
 
 
-# example of printing out an article's info
-start_time = time.time()
-model = NewsDataset()
-print("Number of articles:", model.__len__())
-print("Most recent article:", model.__getitem__(-1))
-end_time = time.time()
-print(f"Execution time: {end_time - start_time:.2f} seconds")
+# # example of printing out an article's info
+# start_time = time.time()
+# model = NewsDataset()
+# print("Number of articles:", model.__len__())
+# print("Most recent article:", model.__getitem__(-1))
+# end_time = time.time()
+# print(f"Execution time: {end_time - start_time:.2f} seconds")
