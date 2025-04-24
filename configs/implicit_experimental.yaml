@@ -1,11 +1,16 @@
 exp:
-  num_in_context_samples: 3
-  max_num_generated_responses: 2
+  num_in_context_samples: 2
   name: implicit_questions_experiment
-  prompt_name: neutral_with_gpt_best_practices.txt
-  max_generate: 1024
+  prompt_name: april_9_prompt0.txt
+  max_generate: 1000000
+  max_num_generated_responses: 5
+  d1_name: reddit
+  d1_split: funny
+  d2_name: reddit
+  d2_split: showerthoughts
+
 model:
   use_flash_attn: false
-name: implicit_experimental_sample_cross_domain
+name: subreddit_run
 save_context: false
 save_dir: runs/implicit/experimental

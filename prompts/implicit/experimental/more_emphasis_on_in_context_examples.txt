@@ -5,7 +5,7 @@ After carefully reviewing these IN-CONTEXT documents, please analyze the followi
 INQUIRY Document:
 {inq_doc}
 
-Now, answer the following three questions about the INQUIRY document, using insights drawn IN-CONTEXT documents where relevant:
+Now, answer the following three questions about the INQUIRY document, using insights drawn from IN-CONTEXT documents where relevant:
 Question 1:
 {question1}
 

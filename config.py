@@ -99,6 +99,9 @@ def update_config(p_cfg: CfgNode, config_path: str, arg_opts: list, dont_save: b
 def finalize_config(p_cfg: CfgNode):
     p_cfg.freeze()
 
+def unfreeze_config(p_cfg:CfgNode):
+    p_cfg.defrost()
+
 
 CFG = get_config_defaults()
 
