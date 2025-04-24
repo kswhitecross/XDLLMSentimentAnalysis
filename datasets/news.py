@@ -4,6 +4,7 @@ This file contains implementation of the news articles dataset.
 from torch.utils.data import Dataset
 import os
 import pandas as pd
+import time
 
 # specify dataset file path (change to your own)
 # link to download dataset: https://www.kaggle.com/datasets/aryansingh0909/nyt-articles-21m-2000-present
@@ -58,6 +59,9 @@ class NewsDataset(Dataset):
         # concatenate chunks into a single dataframe
         self.data = pd.concat(chunks, ignore_index=True)
 
+        self.data['pub_date'] = pd.to_datetime(self.data['pub_date']).dt.strftime('%Y-%m-%d')
+
+
     def __getitem__(self, idx):
         """
         Retrieves item at specified index from the dataset.
@@ -79,3 +83,12 @@ class NewsDataset(Dataset):
     
     def __len__(self):
         return len(self.data)
+
+
+# example of printing out an article's info
+start_time = time.time()
+model = NewsDataset()
+print("Number of articles:", model.__len__())
+print("Most recent article:", model.__getitem__(-1))
+end_time = time.time()
+print(f"Execution time: {end_time - start_time:.2f} seconds")

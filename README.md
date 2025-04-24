@@ -62,3 +62,11 @@ Additionally, to stop the experiment after a single run, use the `short_circuit`
 For major speedups on longer context experiments, flash attention reduces the memory impact and improves performance.  However, it is complex to install, so only recommended for systems that will be used to run major experiemnts.
 
 - [`flash-attn`](https://github.com/Dao-AILab/flash-attention) (gpu-only)
+
+## Data
+### Download Links
+- [Books](https://www.kaggle.com/datasets/ymaricar/cmu-book-summary-dataset?resource=download)
+- [YouTube](https://www.kaggle.com/datasets/atifaliak/youtube-comments-dataset)
+- [News](https://www.kaggle.com/datasets/aryansingh0909/nyt-articles-21m-2000-present)
+
+Don't forget to change FILE_PATH in datasets/books.py, datasets/youtube.py and datasets/news.py with the path to your data.
