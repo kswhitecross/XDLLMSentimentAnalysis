@@ -9,13 +9,21 @@ import numpy as np
 from scipy.special import softmax
 import matplotlib.pyplot as plt
 import seaborn as sns
+from transformers import pipeline
 
 class Experiment(ABC):
     """
     Experiment base class.
     """
-    def __init__(self, experiment_name: str):
+    def __init__(self, experiment_name: str,sentiment_model_path: str = "cardiffnlp/twitter-roberta-base-sentiment-latest",
+):
         self.experiment_name = experiment_name
+
+        # Load the pretrained model into PyTorch and encode the input text as numbers for the model to understand once at the beginning
+        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(sentiment_model_path, device_map = 'auto')
+        # Load the tokenizer and config for the pretrained sentiment analysis model
+        self.sentiment_tokenizer = AutoTokenizer.from_pretrained(sentiment_model_path, device_map = 'auto')
+        self.sentiment_config = AutoConfig.from_pretrained(sentiment_model_path)
 
     @abstractmethod
     def _get_experiment_generator(self) -> Generator[dict[str, Any], None, None]:
@@ -39,18 +47,36 @@ class Experiment(ABC):
         return wrapped_experiment()
     
 
-    def get_sentiment_from_pretrained_model(self, model_answer: str, sentiment_model_path: str):
-        # sentiment_model_path = "cardiffnlp/twitter-roberta-base-sentiment-latest"
-        # Load the tokenizer and config for the pretrained sentiment analysis model
-        tokenizer = AutoTokenizer.from_pretrained(sentiment_model_path, device_map = 'auto')
-        config = AutoConfig.from_pretrained(sentiment_model_path)
 
-        # Load the pretrained model into PyTorch and encode the input text as numbers for the model to understand
-        model = AutoModelForSequenceClassification.from_pretrained(sentiment_model_path,  device_map = 'auto')
-        encoded_input = tokenizer(model_answer, return_tensors='pt')
+    # Function to split text into overlapping chunks
+    def split_text(self, model_answer, max_length, overlap=256):
+        print("MAX LENGTH IS")
+        print(max_length)
+        encoded_input = self.sentiment_tokenizer(model_answer, return_tensors='pt')
+        encoded_chunks = []
+        for i in range(0, len(encoded_input), max_length - overlap):
+            chunk = encoded_input[i:i + max_length]
+            encoded_chunks.append(' '.join(chunk))
+        return np.array(encoded_chunks)
+    
+    # Function to analyze sentiment using sliding window
+    def analyze_sentiment_with_sliding_window(self, model_answer):
+        encoded_chunks = self.split_text(model_answer=model_answer, max_length=self.sentiment_config.max_length)
+        sentiments = []
+
+        for chunk in encoded_chunks:
+            sentiment = self.get_sentiment_from_pretrained_model(self, chunk)
+            sentiments.append(sentiment)  # Collect sentiment labels
+        
+        # Aggregate sentiment results (you can adjust this aggregation logic)
+        majority_sentiment = np.mean(sentiments)  # Majority sentiment
+        return majority_sentiment
+
+    def get_sentiment_from_pretrained_model(self, model_answer: str):
+        encoded_input = self.sentiment_tokenizer(model_answer, return_tensors='pt')
 
         # Outputs the raw scores
-        output = model(**encoded_input)
+        output = self.sentiment_model(**encoded_input)
         # Turn raw scores into probabilities that sum to 1
         scores = output[0][0].detach().numpy()
         scores = softmax(scores)
@@ -62,7 +88,7 @@ class Experiment(ABC):
         #     l = config.id2label[ranking[i]]
         #     s = scores[ranking[i]]
         #     print(f"{i+1}) {l} {np.round(float(s), 4)}")
-
+        print(scores)
         return scores 
 
     def plot_mean_sentiment_scores(scores_across_samples):
