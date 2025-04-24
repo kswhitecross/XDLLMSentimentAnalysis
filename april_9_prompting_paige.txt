@@ -1,0 +1,33 @@
+ATTEMPT 0: 
+Strategy: 
+Revert system prompt to being concise. 
+Update wording of the context of the documents to be "chunks of content" with definitions for "content chunks" and "consumed".
+
+Prompt: 
+april_9_prompt0.txt 
+
+with 3 in-context samples.
+
+Run: 
+content_chunks_test_0_28d886d134504d349333acd53507d9ab
+
+Result: 
+It suggests I "may have had a negative experience with New England during the spring" and "despite your previous negative associations, New England has a redeeming quality"
+
+
+ATTEMPT 1: 
+Strategy: 
+Revert system prompt to being concise. 
+Update wording of the context of the documents to be "chunks of content" with definitions for "content chunks" and "consumed".
+
+Prompt: 
+april_9_prompt0.txt 
+
+with 10 in-context samples.
+
+Run: 
+content_chunks_test_0_28d886d134504d349333acd53507d9ab
+
+Result: 
+It suggests I "may have had a negative experience with New England during the spring" and "despite your previous negative associations, New England has a redeeming quality"
+
