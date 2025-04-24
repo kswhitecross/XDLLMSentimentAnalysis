@@ -23,8 +23,9 @@ class ImplicitQuestionsExperiment(Experiment):
                 prompt_name: str = "SampleExperimentPrompt.txt",
                 num_in_context_samples: int = 2,
                 max_generate: int = 256,
+                sentiment_model_path: str = "cardiffnlp/twitter-roberta-base-sentiment-latest",
                  **kwargs):
-        super().__init__("implicit_questions_experiment")
+        super().__init__("implicit_questions_experiment", sentiment_model_path)
         self.tokenizer = tokenizer
         self.max_generate = max_generate
         self.num_in_context_samples = num_in_context_samples
@@ -60,16 +61,18 @@ class ImplicitQuestionsExperiment(Experiment):
                 # if not the control, randomly sample dynamic number of documents from the in-context dataset and structure them for the prompt
                 if self.in_context_dataset != None:
                     samp_idx = np.random.choice(len(self.in_context_dataset), size=self.num_in_context_samples, replace=False).tolist()
-                    in_context_docs = "\n\n".join([f"IN-CONTEXT Document {i+1}:\n{self.in_context_dataset[position]['content']}" for i, position in enumerate(samp_idx)])
+                    in_context_docs = "\n\n".join([f"PREVIOUS content chunk consumed:\n{self.in_context_dataset[position]['content']}" for i, position in enumerate(samp_idx)])
 
                 # randomly order the implicit questions to add into the prompt template, without impacting the original order 
                 shuffled_implicit_questions_with_idx = random.sample(self.implicit_questions_with_idx, len(self.implicit_questions_with_idx))
-                question_dict = {f"question{i+1}": shuffled_implicit_questions_with_idx[i][1] for i in range(len(shuffled_implicit_questions_with_idx))}
+                questions = "\n\n".join([f"Question{i+1}:\n{shuffled_implicit_questions_with_idx[i][1]}" for i in range(len(shuffled_implicit_questions_with_idx))])
+
+                # question_dict = {f"question{i+1}": shuffled_implicit_questions_with_idx[i][1] for i in range(len(shuffled_implicit_questions_with_idx))}
 
                 # create the prompt, depending on whether it's a control or not
                 prompt = (
-                     self.prompt_template.format(in_context_docs=in_context_docs, inq_doc=item['content'], **question_dict) if self.in_context_dataset != None 
-                    else self.prompt_template.format(inq_doc=item['content'], **question_dict))
+                     self.prompt_template.format(in_context_docs=in_context_docs, inq_doc=item['content'], questions=questions) if self.in_context_dataset != None 
+                    else self.prompt_template.format(inq_doc=item['content'], questions=questions))
                 
                 # chat templatize the prompt, IF USIING the instruct model that has one
                 # https://huggingface.co/docs/transformers/main/en/chat_templating
@@ -88,7 +91,6 @@ class ImplicitQuestionsExperiment(Experiment):
                     "prompt": prompt,
                     "question_order": [shuffled_implicit_questions_with_idx[i][0] for i in range(len(shuffled_implicit_questions_with_idx))]
                 }
-                
                 yield test_dict
         return gen()
     
@@ -99,8 +101,8 @@ class ImplicitQuestionsExperiment(Experiment):
         Process the model's answer, and add the results to the result_dict
         """
         ans = result_dict['model_answer']
-        sentiment_distro = self.get_sentiment_from_pretrained_model(ans, self.sentiment_model_name)
-        result_dict['sentiment_scores'] = sentiment_distro.tolist() 
+        # sentiment_distro = self.analyze_sentiment_with_sliding_window(ans)
+        # result_dict['sentiment_scores'] = sentiment_distro.tolist() 
         return
 
     @property
@@ -110,6 +112,6 @@ class ImplicitQuestionsExperiment(Experiment):
     @staticmethod
     def tqdm_metrics_dict(result_dict: dict[str, Any]) -> dict[str, Any]:
         ret_dict = {
-            "sentiment_scores": result_dict['sentiment_scores'],
+            # "sentiment_scores": result_dict['sentiment_scores'],
         }
         return ret_dict
