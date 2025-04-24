@@ -27,9 +27,9 @@ i = 0
 for subreddit_name in subreddits:
     subreddit = reddit.subreddit(subreddit_name)
     #get top 10 posts for the last year for the subreddit
-    top_10_posts = subreddit.top(time_filter="year", limit=10)
-    for post in top_10_posts:
-        # print(i)
+    top_100_posts = subreddit.top(time_filter="year", limit=100)
+    for post in top_100_posts:
+        print(i)
         i += 1
         #first column is subreddit name, second is post title
         cur_csv_row = [subreddit_name, post.title, post.selftext.replace("\n", " ")]
@@ -53,7 +53,7 @@ for subreddit_name in subreddits:
         cur_csv_row.append(json.dumps(cur_comments, ensure_ascii=False))
         csv_rows.append(cur_csv_row)
 
-file_path = './reddit_posts_scraped_april_23_7pm.csv'
+file_path = './reddit_top_100_posts_scraped.csv'
 
 # Open the file in write mode and create a CSV writer object
 with open(file_path, mode='w', newline='') as file:
