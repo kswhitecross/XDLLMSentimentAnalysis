@@ -28,7 +28,6 @@ class Experiment(ABC):
             for exp in exp_gen:
                 # make sure the experiment dict generated has the keys we need
                 assert 'context' in exp
-                assert 'max_gen_tokens' in exp
                 yield exp
         return wrapped_experiment() 
  
