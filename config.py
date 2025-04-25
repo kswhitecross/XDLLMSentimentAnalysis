@@ -38,28 +38,31 @@ def get_config_defaults() -> CfgNode:
 
     # ====== Experiment Settings ======
     # these settings will be passed as keyword arguments directly to get_experiment
-    cfg.exp = CfgNode()
+    cfg.exp = CfgNode(new_allowed=True)
     # which experiment to run?
     # 'sample_experiment' to run a sample, experiment for debugging purposes
     cfg.exp.name = "sample_experiment"
     # names and splits for the two datasets used
     # 'sample' for a very basic, sample dataset
-    cfg.exp.d1_name = "sample"
-    cfg.exp.d2_name = "sample"
-    # splits for each of the two datasets used
-    # for 'sample', options are 'split1', 'split2';q
-    cfg.exp.d1_split = "split1"
-    cfg.exp.d2_split = "split2"
+    # cfg.exp.d1_name = "sample"
+    # cfg.exp.d2_name = "sample"
+    # # splits for each of the two datasets used
+    # # for 'sample', options are 'split1', 'split2';q
+    # cfg.exp.d1_split = "split1"
+    # cfg.exp.d2_split = "split2"
     # max number of tokens that we should allow the model to generate
     cfg.exp.max_generate = 256
 
     # specifies how many samples from the in-context domain to provide to the freshly initialized model
     cfg.exp.num_in_context_samples = 2
-    # specifies how many responses to generate before cutting it off for the second domain...
-    # # if None then it responds to the full set unless short-circuited
-    cfg.exp.max_num_generated_responses = None
-    # specifies the exact prompt to use 
+    # specifies how many inquiries to address before cutting it off for the second domain...
+    # if None then it responds to the full set unless short-circuited
+    cfg.exp.num_inquiry_samples = None
+    # For the same prompt, specifies how many times to regenerate the randomly sampled output
+    cfg.exp.num_outputs_per_prompt = 1
+    # Specifies the exact prompt to use 
     cfg.exp.prompt_name = "SampleExperimentPrompt.txt"
+
     # ====== Model Settings ======
     cfg.model = CfgNode()
     # model type
@@ -98,10 +101,6 @@ def update_config(p_cfg: CfgNode, config_path: str, arg_opts: list, dont_save: b
 
 def finalize_config(p_cfg: CfgNode):
     p_cfg.freeze()
-
-def unfreeze_config(p_cfg:CfgNode):
-    p_cfg.defrost()
-
 
 CFG = get_config_defaults()
 

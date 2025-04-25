@@ -1,9 +1,5 @@
 dont_save: null
 exp:
-  d1_name: sample
-  d1_split: split1
-  d2_name: sample
-  d2_split: split2
   max_generate: 256
   name: sample_experiment
 model:

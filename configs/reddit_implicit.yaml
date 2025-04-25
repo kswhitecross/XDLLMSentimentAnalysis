@@ -1,0 +1,14 @@
+exp:
+  name: reddit_implicit_questions_experiment
+  prompt_name: april_24_prompt_singular_question.txt
+
+  num_in_context_samples: 2
+  num_inquiry_samples: 1
+  num_outputs_per_prompt: 2
+  num_comments: 3
+
+  max_generate: 2000
+model:
+  use_flash_attn: false
+name: reddit_implicit_questions_experiment
+save_dir: runs/reddit/implicit

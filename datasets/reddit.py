@@ -1,27 +1,3 @@
-# """
-# This file contanis the implementation of the reddit dataset.
-# """
-# from torch.utils.data import Dataset
-
-
-# class RedditDataset(Dataset):
-#     """
-#     Description here.  #TODO Andrew
-#     """
-#     def __init__(self, subreddit: str):
-#         self.subreddit = subreddit
-
-#     def __getitem__(self, idx):
-#         """
-#         Returns the item at index idx.  Returns it as a dict containing ...
-#         :param idx:
-#         :return:
-#         """
-#         return {}
-
-#     def __len__(self) -> int:
-#         return 0
-
 """
 This file contains the implementation of the reddit dataset.
 """
@@ -34,9 +10,9 @@ import ast
 class RedditDataset(Dataset):
     """
     Top 10 subreddits, each with top 10 posts of the year (2025) and respective top 100 comments per post
-    Specify the subreddit name as the split
+    Specify the subreddit name as the split and how many comments to extract
     """
-    def __init__(self, split: str):
+    def __init__(self, split: str, num_comments: int):
         if split is None:
             raise ValueError("subreddit name in RedditDataset constructor cannot be None")
         file_path = os.path.join('data', 'reddit_posts_scraped_april_23_7pm.csv')
@@ -44,6 +20,7 @@ class RedditDataset(Dataset):
 
         #filtering by subreddit name, so this should return only 10 rows
         self.data = df[df['subreddit'] == split]
+        self.num_comments = num_comments
         # self.data = df.where(df['subreddit'] == split).dropna()
 
     def __getitem__(self, idx):
@@ -52,8 +29,7 @@ class RedditDataset(Dataset):
         :param idx:
         :return:
         """
-        # return {"content":{"subreddit_name": self.data.iloc[idx]["subreddit"], "post_title": self.data.iloc[idx]["post_title"], "post_body": self.data.iloc[idx]["post_body"], "comments": self.data.iloc[idx]["comments"]}}
-        return {"content":{"post_title": self.data.iloc[idx]["post_title"], "post_body": self.data.iloc[idx]["post_body"], "comments": ast.literal_eval(self.data.iloc[idx]["comments"])[:3]}}
+        return {"content":{"post_title": self.data.iloc[idx]["post_title"], "post_body": self.data.iloc[idx]["post_body"], "comments": ast.literal_eval(self.data.iloc[idx]["comments"])[:self.num_comments]}}
 
     def __len__(self) -> int:
         return len(self.data)

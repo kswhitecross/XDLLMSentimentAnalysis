@@ -9,7 +9,6 @@ from config import CFG, update_config, finalize_config
 from models import get_model
 from experiments import get_experiment
 
-
 def main():
     # create model, tokenizer
     print("Loading model...")
@@ -32,7 +31,7 @@ def main():
         for test_dict in pbar:
             context = test_dict['context']
             max_generate = test_dict['max_gen_tokens']
-
+            
             # tokenize the context
             input_tokens = tokenizer(context, return_tensors='pt').to(model.device)
             n_input_tokens = input_tokens['input_ids'].size(-1)
@@ -69,7 +68,7 @@ def main():
             results_file.flush()
             num_generated_responses += 1
 
-            if CFG.short_circuit or num_generated_responses == CFG.exp.max_num_generated_responses:
+            if CFG.short_circuit:
                 break
 
     # create completed file
