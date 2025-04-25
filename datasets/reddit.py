@@ -15,7 +15,7 @@ class RedditDataset(Dataset):
     def __init__(self, split: str, num_comments: int):
         if split is None:
             raise ValueError("subreddit name in RedditDataset constructor cannot be None")
-        file_path = os.path.join('data', 'reddit_posts_scraped_april_23_7pm.csv')
+        file_path = os.path.join('data', 'reddit_top_100_posts_scraped.csv')
         df = pd.read_csv(file_path)
 
         #filtering by subreddit name, so this should return only 10 rows
