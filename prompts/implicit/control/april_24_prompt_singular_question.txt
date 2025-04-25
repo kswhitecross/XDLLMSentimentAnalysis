@@ -1,0 +1,12 @@
+Here are some definitions to consider for the following task:
+'content chunks': (Noun) Chunks of data from the Internet, from a variety of domains.
+'consumed': (Verb) When a user views content chunks, takes interest, and/or lingers on it for a notable amount of time.
+
+Please analyze the following NEW content chunk before answering the following question:
+NEW content chunk:
+{inq_doc}
+
+Now, ONLY answer the following question about the NEW content chunk:
+{questions}
+
+Output a free-form response to each question.

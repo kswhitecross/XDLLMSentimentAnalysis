@@ -24,8 +24,8 @@ def get_config_defaults() -> CfgNode:
     cfg.name = "default"
     # The root folder where all results will be saved
     cfg.save_dir = "runs/"
-    # Save the context from each LLM forward pass?
-    cfg.save_context = False
+    # Save all of the contexts?
+    cfg.save_context = True
     # Print out model inputs / outputs?
     cfg.verbose = False
     # Stop after a single run
@@ -46,20 +46,26 @@ def get_config_defaults() -> CfgNode:
     # 'sample' for a very basic, sample dataset
     cfg.exp.d1_name = "sample"
     cfg.exp.d2_name = "sample"
-    # splits for each of the two datasets used
-    # for 'sample', options are 'split1', 'split2';q
+    # # splits for each of the two datasets used
+    # # for 'sample', options are 'split1', 'split2';q
     cfg.exp.d1_split = "split1"
     cfg.exp.d2_split = "split2"
-    # max number of tokens that we should allow the model to generate
+    # legacy max generate
+    # NO LONGER USED
     cfg.exp.max_generate = 256
 
     # specifies how many samples from the in-context domain to provide to the freshly initialized model
     cfg.exp.num_in_context_samples = 2
-    # specifies how many responses to generate before cutting it off for the second domain...
-    # # if None then it responds to the full set unless short-circuited
-    cfg.exp.max_num_generated_responses = None
-    # specifies the exact prompt to use 
+    # specifies how many inquiries to address before cutting it off for the second domain...
+    # if None then it responds to the full set unless short-circuited
+    cfg.exp.num_inquiry_samples = None
+    # For the same prompt, specifies how many times to regenerate the randomly sampled output
+    cfg.exp.num_outputs_per_prompt = 1
+    # Specifies the exact prompt to use 
     cfg.exp.prompt_name = "SampleExperimentPrompt.txt"
+    # number of comments to include per reddit post
+    cfg.exp.num_comments = 10
+
     # ====== Model Settings ======
     cfg.model = CfgNode()
     # model type
@@ -75,6 +81,19 @@ def get_config_defaults() -> CfgNode:
     cfg.model.use_flash_attn = True
     # Quantize the model, only matters if model.use_flash_attn is False
     cfg.model.quantize = False
+    # Model sampling parameters
+    # Passed as a dictionary to update model.generation_config
+    cfg.model.gen = CfgNode()
+    # Whether or not to do any sampling
+    # If false, will do greedy decoding
+    cfg.model.gen.do_sample = True
+    # temperature for sampling
+    cfg.model.gen.temperature = 0.6
+    # probability threshhold for nucleus sampling
+    cfg.model.gen.top_p = 0.90
+    # maximum of new tokens to generate
+    cfg.model.gen.max_new_tokens = 2000
+
     return cfg
 
 
@@ -98,10 +117,6 @@ def update_config(p_cfg: CfgNode, config_path: str, arg_opts: list, dont_save: b
 
 def finalize_config(p_cfg: CfgNode):
     p_cfg.freeze()
-
-def unfreeze_config(p_cfg:CfgNode):
-    p_cfg.defrost()
-
 
 CFG = get_config_defaults()
 
