@@ -143,14 +143,6 @@ class RedditImplicitQuestionsExperiment(Experiment):
                         break 
         return gen()
 
-    def evaluate_results(self, result_dict: dict[str, Any]):
-        """
-        Process the model's answer, and add the results to the result_dict
-        """
-        ans = result_dict['model_answer']
-        # TODO extract its score from the JSON it produces, when scoring prompt is used
-        return
-
     @property
     def n_experiments(self):
         return self.num_experiments

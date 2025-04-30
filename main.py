@@ -63,7 +63,8 @@ def main():
                 print("=" * 20)
 
             # evaluate output
-            experiment.evaluate_results(test_dict)
+            if args.self_score:
+                experiment.evaluate_results(test_dict)
 
             # update tqdm
             postfix = experiment.tqdm_metrics_dict(test_dict)
@@ -97,6 +98,8 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", default='configs/default.yaml',
                         help='The filepath of the .yaml config file')
     parser.add_argument("--dont_save", action='store_true', help='Don\'t save the results.')
+    
+    parser.add_argument("--self_score", action='store_true', help='Get the self scoring when done generating.')
 
     # parse args, and store other args in opts
     args, opts = parser.parse_known_args()

@@ -175,13 +175,15 @@ def main(cross_domain_run_folder_path):
         )[["pos_shift", "neg_shift", "neutral_shift"]].mean().reset_index()
 
 
-    print(avg_kl_df)
+    print(kl_df)
+    
+    kl_df.to_csv('llama_1b_twitter_roberta.csv', index=False)
 
     # TY chatgpt for helping set up these labeled heatmaps 
     plot_heatmaps_of_kl_divergence(avg_kl_df)
     plot_heatmaps_of_shifts(avg_shifts_df)
 if __name__ == "__main__":
 
-    cross_domain_run_folder_path = 'runs/reddit/implicit/reddit_implicit_questions_experiment_2ba223a4b77e4503b527a2ef08c43ce3/results.jsonl'
+    cross_domain_run_folder_path = 'llama_1b/llama_1B_4fc69d73e8c340f79e8fdd8e0abdc2c3/results.jsonl'
 
     main(cross_domain_run_folder_path=cross_domain_run_folder_path)

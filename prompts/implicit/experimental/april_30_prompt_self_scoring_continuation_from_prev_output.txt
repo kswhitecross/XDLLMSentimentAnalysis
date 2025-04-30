@@ -1,0 +1,9 @@
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+Finally, please mimic a sentiment analysis model and rate the sentiment of YOUR response (as the AI chatbot) about the key takeaways, and yours alone, from 1 to 5 using this scale:  
+1 (very negative), 2 (negative), 3 (neutral), 4 (positive), 5 (very positive).
+
+Respond in **JSON format only** with the following fields in this order:  
+- {"justification": a brief explanation of the score, "sentiment_score": an integer from 1 to 5 }
+
+For rating the sentiment, do not include any extra text or formatting outside of valid JSON.
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>

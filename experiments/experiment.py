@@ -3,6 +3,8 @@ This file contains the Experiment Base class, which defines the methods an exper
 """
 from abc import ABC, abstractmethod
 from typing import Generator, Any
+import json
+import re
 
 class Experiment(ABC):
     """
@@ -30,14 +32,36 @@ class Experiment(ABC):
                 assert 'context' in exp
                 yield exp
         return wrapped_experiment() 
- 
-    @abstractmethod
+    
     def evaluate_results(self, result_dict: dict[str, Any]):
         """
         This method gets the result dict containing the generated output `model_answer`, evaluates it, and adds the
-         evaluation results to be logged to `result_dict`
+            evaluation results to be logged to `result_dict`
         """
-        pass
+        ans = result_dict['model_answer']
+        
+        try:
+            # Find first bracket, last bracket, anything in between (dotall allows newlines for multi line JSON)
+            json_match = re.search(r'\{.*\}', ans, re.DOTALL)
+            # Store it as is, without extracting innards just in case post-processing needed
+            if json_match:
+                json_data = json.loads(json_match.group())
+                result_dict['json_sentiment_scoring'] = json_data
+            else:
+                # ans_with_ending = ans + "}"
+                # hail_mary_json_match = re.search(r'\{.*\}', ans_with_ending, re.DOTALL)
+                # if hail_mary_json_match:
+                #     json_data = json.loads(hail_mary_json_match.group())
+                #     result_dict['json_sentiment_scoring'] = json_data
+                result_dict['json_sentiment_scoring'] = None
+                print("No valid JSON found in the response.")
+
+
+        except Exception as e:
+            print("Trouble extracting JSON from model's anwer")
+            result_dict['json_sentiment_scoring'] = None
+
+        return
 
     @property
     @abstractmethod
