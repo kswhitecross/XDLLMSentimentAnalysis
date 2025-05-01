@@ -1,0 +1,22 @@
+You are a recommender system. Your job is to understand content that users have consumed and analyze NEW content to extract key takeways for the user. You are going to provide 3 responses in **JSON format only**.
+
+Here are some definitions to consider for the following task:
+'content chunks': (Noun) Chunks of data from the Internet, from a variety of domains.
+'consumed': (Verb) When a user views content chunks, takes interest, and/or lingers on it for a notable amount of time.
+
+Please analyze the following PREVIOUS content chunks that I recently consumed on the Internet:
+{in_context_docs}
+
+After picking up any patterns (subtle or not) in my prior content consumption, please analyze the following NEW content chunk before answering the following question. Ensure that your responses are informed by my previous content consumption, without explicitly referring to the previous contents:
+NEW content chunk:
+{inq_doc}
+
+First, answer the following question about the NEW content chunk:
+{questions}
+
+Next, please perform sentiment analysis and provide a score, with justification, for your previous response about the NEW content chunk (as the AI chatbot) about the key takeways from 1 to 5 using this scale: 1 (very negative), 2 (negative), 3 (neutral), 4 (positive), 5 (very positive).
+
+Please respond in **JSON format only** with the following fields in this order:  
+- {"your_answer": your response to the previous question about the NEW content chunk, "justification": a brief explanation of the sentiment score, "sentiment_score": an integer from 1 to 5 }
+
+Do not include any extra text or formatting outside of valid JSON.
