@@ -72,7 +72,9 @@ class RedditImplicitQuestionsExperiment(Experiment):
             for inquiry_data_idx, inquiry_subreddit in enumerate(self.subreddits):
 
                 # Get the posts to inquire about
-                inquiry_data = self.subreddits_data[inquiry_data_idx]
+                # inquiry_data = self.subreddits_data[inquiry_data_idx]
+
+                inquiry_data = [self.subreddits_data[inquiry_data_idx][i] for i in range(self.num_inquiry_samples)]
                 
                 # For each post to inquire about
                 num_inquiry_samples_used = 0
@@ -136,11 +138,6 @@ class RedditImplicitQuestionsExperiment(Experiment):
                                 "output_instance_number": o + 1
                             }
                             yield test_dict
-
-                # Stop when we have inquired about as many inquiry samples as specified if given
-                num_inquiry_samples_used += 1  
-                if self.num_inquiry_samples != None and self.num_inquiry_samples == num_inquiry_samples_used:
-                        break 
         return gen()
 
     @property
