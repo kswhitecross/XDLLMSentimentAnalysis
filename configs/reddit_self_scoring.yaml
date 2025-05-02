@@ -1,24 +1,23 @@
-
+dont_save: false
 exp:
-  name: reddit_self_scoring_experiment
+  name: reddit_implicit_questions_experiment
+  num_comments: 10
+  num_in_context_samples: 10
+  num_inquiry_samples: 20
   num_outputs_per_prompt: 1
-  max_generate: 2000
-  prompt_name: april_30_prompt_self_scoring_continuation_from_prev_output.txt
+  prompt_name: may_1_self_scoring.txt
 model:
   gen:
     do_sample: true
     max_new_tokens: 2000
     temperature: 0.6
     top_p: 0.9
-  name: meta-llama/Llama-3.2-3B-Instruct
+  name: meta-llama/Llama-3.1-8B-Instruct
   quantize: false
   type: hf
-  use_flash_attn: false
-name: reddit_self_scoring
-name_id: null
-run_id: null
+  use_flash_attn: true
+name: reddit_self_scoring_8B
 save_context: true
-save_dir: runs/reddit/implicit
-save_path: null
+save_dir: runs/reddit/self_scoring
 short_circuit: false
-verbose: True
+verbose: false
