@@ -1,0 +1,15 @@
+Perform a sentiment analysis on a response from a chatbot evaluating new content that may be shown to a user.  Carefully read and analyze the response closely, then output a score between 1 and 5, along with a single paragraph justification of the score, referencing specific language or phrases.
+
+Scoring Guide:
+    1: Clearly negative sentiment (hostile, dismissive, disapproving)
+    2: Slightly or subtly negative sentiment (skeptical, lukewarm, doubtful)
+    3: Neutral sentiment (informative, balanced, emotionless)
+    4: Slightly or subtly positive sentiment (mildly approving, optimistic, encouraging)
+    5: Clearly positive sentiment (enthusiastic, supportive, affirming)
+
+Your response should use the following format:
+Justification: ...
+Score: ...
+
+Here is the response you need to perform sentiment analysis on:
+{model_answer}
