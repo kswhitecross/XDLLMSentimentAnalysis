@@ -24,13 +24,12 @@ class HFModel(Model):
     def apply_model(self, **prompt_kwargs) -> str:
         chat = [
             {'role': 'system', 'content': self.system_prompt},
-            {"role": "system", "content": "You are a helpful AI assistant."},
             {"role": "user", "content": self.prompt.format(**prompt_kwargs)}
         ]
         input_tokens = self.tokenizer.apply_chat_template(chat, add_generation_prompt=True, return_tensors='pt',
-                                                          tokenize=True).to(self.model.device)
+                                                          tokenize=True, return_dict=True).to(self.model.device)
         n_input_tokens = len(input_tokens['input_ids'])
-        output_tokens = self.model.generate(**input_tokens)[0]
+        output_tokens = self.model.generate(**input_tokens, pad_token_id=self.tokenizer.eos_token_id)[0]
         output = self.tokenizer.decode(output_tokens[n_input_tokens:], skip_special_tokens=True)
         return output
 
@@ -93,22 +92,18 @@ def main(args: argparse.Namespace):
             "top_p": 0.9,
         }
         model, tokenizer = get_hf_model(
-            name='meta-llama/Llama-3.3-70B-Instruct',
+            name='meta-llama/Llama-3.1-8B-Instruct',
             use_flash_attn=True,
-            quantize=True,
+            quantize=False,
             gen=gen
         )
         # retroactively set the pad_token_id to the eos_token_id to suppress warnings
-        model.config.pad_token_id = tokenizer.eos_token_id
         chatbot = HFModel(model, tokenizer, prompt_template, system_prompt)
 
-    # load the hf sentiment analysis pipeline as well
-    sent_pipeline = None
-    if args.sent_pipeline:
-        sent_pipeline = pipeline('sentiment-analysis', top_k=None, device_map='auto')
 
     # find all folders in runs_dir with a results.jsonl in them
-    runs = [run for run in os.listdir(args.runs_dir) if os.path.exists(os.path.join(run, 'results.jsonl'))]
+    runs = [os.path.join(args.runs_dir, run) for run in os.listdir(args.runs_dir)
+            if os.path.exists(os.path.join(args.runs_dir, run, 'results.jsonl'))]
 
     # iterate through every run
     for run in runs:
@@ -129,16 +124,9 @@ def main(args: argparse.Namespace):
                     # parse the response
                     sent_dict = parse_sentiment_response(sentiment_model_response)
 
-                    # optionally run the huggingface pipeline as well
-                    if args.sent_pipeline:
-                        # get the scores
-                        sent_scores = sent_pipeline(model_question_answer)[0]
-                        # add each of them to the dict
-                        for score_dict in sent_scores:
-                            sent_dict[score_dict['label']] = score_dict['score']
-
                     # save outputs
                     sentiment_file.write(json.dumps(sent_dict) + "\n")
+                    sentiment_file.flush()
 
     # done!
     print("Done!")
@@ -156,7 +144,5 @@ if __name__ == "__main__":
                         help="Prompt filepath")
     parser.add_argument("--system_prompt", type=str, default='prompts/SentimentAnalysisSystem.txt',
                         help="System prompt filepath")
-    parser.add_argument("--sent_pipeline", type=bool, default=True, help="Use the built-in huggingface "
-                        "sentiment analysis pipeline as well.")
     parsed_args = parser.parse_args()
     main(parsed_args)
