@@ -13,19 +13,25 @@ import numpy as np
 import random
 from datasets import get_dataset
 
-def single_chat_llama(model, tokenizer, questionnaire, questions_string, in_context_dataset, num_in_context_samples, in_context_examples_prompt_name, max_tokens=1024):
-    # if not the control, randomly sample dynamic number of documents from the in-context dataset and structure them for the prompt
-    # if in_context_dataset != None:
-    samp_idx = np.random.choice(len(in_context_dataset), size=num_in_context_samples, replace=False).tolist()
-    in_context_docs = "\n\n".join([f"IN-CONTEXT Document {i+1}:\n{in_context_dataset[position]['content']}" for i, position in enumerate(samp_idx)])
-    with open(os.path.join("prompts", "questionnaire", in_context_examples_prompt_name)) as p:
-        prompt_template = p.read()
-    questionnaire_part_of_prompt = questionnaire["prompt"] + '\n' + questions_string 
+def single_chat_llama(model_instance, tokenizer, questionnaire, questions_string, in_context_dataset, num_in_context_samples, in_context_examples_prompt_name):
+    # Randomly sample n in-context samples, if it is NOT the control, and we want the template for the in-context content consumed
+    if in_context_dataset != None:
+        in_context_posts_idx = np.random.choice(len(in_context_dataset),
+                                                size=num_in_context_samples,
+                                                replace=False).tolist()
+        in_context_docs = "\n\n".join(
+            [f"PREVIOUS content chunk consumed:\n{in_context_dataset[position]['content']}" for
+                i, position in enumerate(in_context_posts_idx)])
+        
+        with open(os.path.join("prompts", "questionnaire", in_context_examples_prompt_name)) as p:
+            prompt_template = p.read()
+        questionnaire_part_of_prompt = questionnaire["prompt"] + '\n' + questions_string 
 
-    prompt = (
-            prompt_template.format(in_context_docs=in_context_docs) + '\n' + questionnaire_part_of_prompt if in_context_dataset != None
-            else questionnaire_part_of_prompt)
-
+    # If control, just do the questionaire prompting, otherwise share the samples first
+    prompt = (questionnaire_part_of_prompt if in_context_dataset == None
+              else prompt_template.format(in_context_docs=in_context_docs) + '\n\n' + questionnaire_part_of_prompt)
+    
+    # Applies the questionnaire-specific system prompt 
     chat = [
         {"role": "system", "content": questionnaire["inner_setting"]},
         {"role": "user", "content": prompt},
@@ -34,20 +40,21 @@ def single_chat_llama(model, tokenizer, questionnaire, questions_string, in_cont
     context = tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
 
     # tokenize the context
-    input_tokens = tokenizer(context, return_tensors='pt').to(model.device)
+    input_tokens = tokenizer(context, return_tensors='pt').to(model_instance.device)
     n_input_tokens = input_tokens['input_ids'].size(-1)
 
     # generate output tokens
-    output_tokens = model.generate(**input_tokens, max_new_tokens=max_tokens, pad_token_id=tokenizer.eos_token_id)
+    #TODO make this dynamic, get Kyle's help for passing the model gen config stuff
+    output_tokens = model_instance.generate(**input_tokens, max_new_tokens=2000, pad_token_id=tokenizer.eos_token_id)
     
     model_answer = tokenizer.decode(output_tokens[0][n_input_tokens:], skip_special_tokens=True)
     return context, model_answer
 
 
-def custom_generator(questionnaire, args):
+def subreddit_examples_generator(questionnaire, args):
     testing_file = args.testing_file
     model = args.model
-    records_file = args.name_exp if args.name_exp is not None else model
+    records_file = args.name_exp if args.name_exp is not None else os.path.basename(args.model)
 
     openai.api_key = args.openai_key
 
@@ -59,6 +66,14 @@ def custom_generator(questionnaire, args):
     shuffle_count = 0
     insert_count = 0
     total_iterations = len(order_columns) * args.test_count
+
+    in_context_samples_prompt = args.in_context_samples_prompt
+    subreddit_name = args.subreddit
+    num_in_context_samples = args.num_in_context_samples
+    num_comments = args.num_comments
+
+    quantize = True if args.quantize != None else args.quantize
+    use_flash_attn = True if args.use_flash_attn != None else args.use_flash_attn
 
     with tqdm(total=total_iterations) as pbar:
         for i, header in enumerate(df.columns):
@@ -82,18 +97,22 @@ def custom_generator(questionnaire, args):
                     while(True):
                         result_string_list = []
                         previous_records = []
-                        in_context_dataset = get_dataset("sample")
+                        
+                        # If not the control, we should have a subreddit name to sample from
+                        in_context_dataset = None if subreddit_name == None else get_dataset("reddit", split=subreddit_name, num_comments=num_comments) 
+
                         for questions_string in questions_list:
                             result = ''
                             if "llama" in model:
-                                model_instance, tokenizer = get_model("hf", 'meta-llama/Llama-3.2-3B-Instruct', False, False)
-                                    
-                                inputs, result = single_chat_llama(model_instance, tokenizer, 
-                                                                   questionnaire, questions_string, 
-                                                                   in_context_dataset, 5, "in_context_examples_neutral.txt", 
-                                                                   max_tokens=1024)
+                                config = {'name': model, 'use_flash_attn': use_flash_attn, 'quantize': quantize}
+                                model_instance, tokenizer = get_model(model_type="hf", **config)
+                                
+                                # Answers a chunk of questions at a time (questions_string), from my understanding
+                                inputs, result = single_chat_llama(model_instance=model_instance, tokenizer=tokenizer, 
+                                                                   questionnaire=questionnaire, questions_string=questions_string, 
+                                                                   in_context_dataset=in_context_dataset, num_in_context_samples=num_in_context_samples,
+                                                                   in_context_examples_prompt_name=in_context_samples_prompt)
 
-                            
                             elif model.startswith("gpt"):
                                 inputs = previous_records + [
                                     {"role": "system", "content": questionnaire["inner_setting"]},

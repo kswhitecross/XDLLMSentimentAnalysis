@@ -484,9 +484,12 @@ def run_psychobench(args, generator):
     for questionnaire_name in questionnaire_list:
         # Get questionnaire
         questionnaire = get_questionnaire(questionnaire_name)
-        args.testing_file = f'psychobench/results/{args.name_exp}-{questionnaire["name"]}.csv' if args.name_exp is not None else f'psychobench/results/{args.model}-{questionnaire["name"]}.csv'
-        args.results_file = f'psychobench/results/{args.name_exp}-{questionnaire["name"]}.md' if args.name_exp is not None else f'psychobench/results/{args.model}-{questionnaire["name"]}.md'
-        args.figures_file = f'psychobench/{args.name_exp}-{questionnaire["name"]}.png' if args.name_exp is not None else f'psychobench/{args.model}-{questionnaire["name"]}.png'
+
+        valid_model_file_name = os.path.basename(args.model)
+
+        args.testing_file = f'psychobench/results/{args.name_exp}-{questionnaire["name"]}.csv' if args.name_exp is not None else f'psychobench/results/{valid_model_file_name}-{questionnaire["name"]}.csv'
+        args.results_file = f'psychobench/results/{args.name_exp}-{questionnaire["name"]}.md' if args.name_exp is not None else f'psychobench/results/{valid_model_file_name}-{questionnaire["name"]}.md'
+        args.figures_file = f'psychobench/{args.name_exp}-{questionnaire["name"]}.png' if args.name_exp is not None else f'psychobench/{valid_model_file_name}-{questionnaire["name"]}.png'
 
         os.makedirs("psychobench/results", exist_ok=True)
         os.makedirs("psychobench/results/figures", exist_ok=True)
