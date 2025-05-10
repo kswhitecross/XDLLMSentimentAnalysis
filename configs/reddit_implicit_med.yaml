@@ -1,0 +1,28 @@
+dont_save: false
+exp:
+  d1_name: sample
+  d1_split: split1
+  d2_name: sample
+  d2_split: split2
+  max_generate: 256
+  name: reddit_implicit_questions_experiment
+  num_comments: 10
+  num_in_context_samples: 30
+  num_inquiry_samples: 20
+  num_outputs_per_prompt: 1
+  prompt_name: april_24_prompt_singular_question.txt
+model:
+  gen:
+    do_sample: true
+    max_new_tokens: 2000
+    temperature: 0.6
+    top_p: 0.9
+  name: meta-llama/Llama-3.1-8B-Instruct
+  quantize: false
+  type: hf
+  use_flash_attn: true
+name: reddit_implicit_8B
+save_context: true
+save_dir: runs/reddit/implicit/med
+short_circuit: false
+verbose: false

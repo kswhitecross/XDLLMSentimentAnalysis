@@ -100,7 +100,6 @@ def main(args: argparse.Namespace):
         # retroactively set the pad_token_id to the eos_token_id to suppress warnings
         chatbot = HFModel(model, tokenizer, prompt_template, system_prompt)
 
-
     # find all folders in runs_dir with a results.jsonl in them
     runs = [os.path.join(args.runs_dir, run) for run in os.listdir(args.runs_dir)
             if os.path.exists(os.path.join(args.runs_dir, run, 'results.jsonl'))]
