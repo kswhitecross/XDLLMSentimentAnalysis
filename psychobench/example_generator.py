@@ -36,8 +36,11 @@ def single_chat_llama(model_instance, tokenizer, questionnaire, questions_string
     n_input_tokens = input_tokens['input_ids'].size(-1)
 
     # generate output tokens
-    #TODO make this dynamic, get Kyle's help for passing the model gen config stuff
-    output_tokens = model_instance.generate(**input_tokens, max_new_tokens=2000, pad_token_id=tokenizer.eos_token_id)
+    kwargs = {'do_sample': True,
+    'max_new_tokens': 2000,
+    'temperature': 0.6,
+    'top_p': 0.9}
+    output_tokens = model_instance.generate(**input_tokens, **kwargs, pad_token_id=tokenizer.eos_token_id)
     
     model_answer = tokenizer.decode(output_tokens[0][n_input_tokens:], skip_special_tokens=True)
     return context, model_answer
