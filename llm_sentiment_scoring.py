@@ -19,7 +19,6 @@ def load_jsonl_as_dataframe(cross_domain_run_folder_path, save_as_csv = False):
     if save_as_csv:
         file_path = Path(cross_domain_run_folder_path)
         df.to_csv(file_path.stem, index=False)
-    print(df.head())
 
     return df
 
@@ -84,40 +83,114 @@ def check_control_vs_control_shift(df):
         print("Control does not differ from control, as we hoped")
 
 
-def plot_heatmap(df):
+def plot_heatmap(df, vmin, vmax, save_file_dir = None, save_file_name = None, show = False):
     # Per https://seaborn.pydata.org/generated/seaborn.heatmap.html, the rows AKA index is the in-context domain
     # Cols are inquiry
     # And we use the expected sentiment shift for this
     pivot_table = df.pivot(index='in_context_domain', columns='inquiry_domain', values='expected_sentiment_shift')
 
     plt.figure(figsize=(12, 8))
-    sns.heatmap(pivot_table, annot=True, cmap="coolwarm", fmt='.4f', cbar_kws={'label': 'Expected Sentiment Shift'})
+    sns.heatmap(pivot_table, annot=True, cmap="coolwarm", fmt='.4f', 
+                vmin=vmin, vmax=vmax, cbar_kws={'label': 'Expected Sentiment Shift'})
     plt.title("Expected Sentiment Shifts For Inquiry Domains Given In-Context Domains")
     plt.ylabel("In-Context Domain")
     plt.xlabel("Inquiry Domain")
     plt.xticks(rotation=45)
     plt.yticks(rotation=0)
     plt.tight_layout()
-    plt.show()
+
+    if save_file_name != None and save_file_dir != None:
+        plt.savefig(os.path.join(save_file_dir, save_file_name))
+
+    if show:
+        plt.show()
 
 def main():
-    og_llama_70b_outputs =  load_jsonl_as_dataframe('llama_70b_q/llama_70B_Q_13b9cb55548f4b3b889b572a58aa7815/results.jsonl', save_as_csv = False)
-    respective_sentiment_scores = load_jsonl_as_dataframe('sentiment/sentiment/original/llama_70b.jsonl', save_as_csv = False)
+    # Collect this for consistent color scale
+    global_shifts = []  
 
-    # Add the sentiment scores as cols
-    llama_70b_combined_with_sentiments =  pd.concat([og_llama_70b_outputs, respective_sentiment_scores], axis=1)
+    # So ya don't need to recalculate everything
+    expected_shifts_cache = [] 
+
+    for num_in_context_type in ['long', 'original']:
+          
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(f"ANALYZING LLAMA MODELS with {num_in_context_type} IN-CONTEXT SAMPLES....")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+        folder = Path(num_in_context_type)
+        for sub_folder in folder.iterdir():
+            if sub_folder.is_dir():
+                      
+
+                # Get the model name of the current directory of results
+                sub_folder_name_parts = sub_folder.name.split("_")
+                # if sub_folder_name_parts[1] == '70B':
+                #     model_name = "_".join(sub_folder_name_parts[:3])
+                # else:
+                #     model_name = "_".join(sub_folder_name_parts[:2])
+                model_name = "_".join(sub_folder_name_parts[:2])
+
+            
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                print(f"CALCULATING SHIFTS WITH {num_in_context_type}, {model_name}....")
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+
+                llama_outputs =  load_jsonl_as_dataframe(os.path.join(sub_folder, 'results.jsonl'), save_as_csv = False)
+                respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('sentiment', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
+
+                # Add the sentiment scores as cols
+                llama_combined_with_sentiments =  pd.concat([llama_outputs, respective_sentiment_scores], axis=1)
+                
+                # Just a sanity check that our scores in fact do align fully with the OG output rows
+                print("Llama outputs shape:", llama_outputs.shape)
+                print("Sentiment scores shape:", respective_sentiment_scores.shape)
+                print("Merged shape:", llama_combined_with_sentiments.shape)
+                print("# Null doc idx:", llama_combined_with_sentiments['inq_doc_idx'].isna().sum())
+                print("# Null scores:", llama_combined_with_sentiments['score'].isna().sum())
+                print("The NaN rows, if any:", respective_sentiment_scores[respective_sentiment_scores['score'].isna()])
+
+                # TODO check in on this
+                llama_combined_with_sentiments = llama_combined_with_sentiments[llama_combined_with_sentiments['score'].notna()]
+
+                # First get the expected sentiment per post within an inquiry domain
+                expected_sentiment_per_posts = expected_sentiment_scores_across_subreddit_posts(llama_combined_with_sentiments)
+                # Then get the expected sentiment shift per post within an inquiry domain
+                expected_sentiment_shifts_per_posts = compute_sentiment_shift_of_expectations_across_subreddit_posts(expected_sentiment_per_posts)
+                # Lastly get the average of these expected shifts per post, for the expected shift per inquiry domain given in-context domain
+                expected_sentiment_shifts_per_inquiry_domain = compute_expected_sentiment_shift_per_domain(expected_sentiment_shifts_per_posts)
+                # Sanity check that the shift calcs are 0 for control vs control
+                # check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
+
+                # Collect shift values for global vmin/vmax
+                global_shifts.extend(expected_sentiment_shifts_per_inquiry_domain['expected_sentiment_shift'].tolist())
+                # Cache for second pass
+                expected_shifts_cache.append((num_in_context_type, model_name, expected_sentiment_shifts_per_inquiry_domain))
     
-    print("Original outputs shape:", og_llama_70b_outputs.shape)
-    print("Sentiment scores shape:", respective_sentiment_scores.shape)
-    print("Merged shape:", llama_70b_combined_with_sentiments.shape)
-    print(llama_70b_combined_with_sentiments['inq_doc_idx'].isna().sum())
+    global_shift_max = max(global_shifts)
+    global_shift_min = min(global_shifts)
 
-    expected_sentiment_per_posts = expected_sentiment_scores_across_subreddit_posts(llama_70b_combined_with_sentiments)
-    expected_sentiment_shifts_per_posts = compute_sentiment_shift_of_expectations_across_subreddit_posts(expected_sentiment_per_posts)
-    expected_sentiment_shifts_per_inquiry_domain = compute_expected_sentiment_shift_per_domain(expected_sentiment_shifts_per_posts)
-    # check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
-
-    plot_heatmap(expected_sentiment_shifts_per_inquiry_domain)
-    
+    for num_in_context_type, model_name, shift_df in expected_shifts_cache:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print(f"PLOTTING HEATMAP FOR {num_in_context_type}, {model_name}....")
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            
+            save_file_name = model_name + "_" + num_in_context_type + '_heatmap.png'
+            plot_heatmap(df=shift_df,
+                        save_file_dir=num_in_context_type,
+                        save_file_name=save_file_name,
+                        show=False,
+                        vmin=None,
+                        vmax=None)
+            
+            save_file_name = model_name + "_" + num_in_context_type + '_standardized_heatmap.png'
+            plot_heatmap(df=shift_df,
+                        save_file_dir=num_in_context_type,
+                        save_file_name=save_file_name,
+                        show=False,
+                        vmin=global_shift_min,
+                        vmax=global_shift_max)
+        
 if __name__ == "__main__":
     main()

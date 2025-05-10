@@ -176,7 +176,9 @@ cython_debug/
 
 sentiment/
 long/
+original/
 llama_1b/
 llama_3b/
 llama_8b/
 llama_70b_q/
+self_scoring/
