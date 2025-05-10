@@ -85,7 +85,7 @@ def check_control_vs_control_shift(df):
         print("Control does not differ from control, as we hoped")
 
 
-def plot_heatmap(df, value_to_plot, vmin, vmax, save_file_dir = None, save_file_name = None, show = False):
+def plot_heatmap(df, value_to_plot, vmin, vmax, save_file_dir = None, save_file_name = None, show_plot = False):
     # Per https://seaborn.pydata.org/generated/seaborn.heatmap.html, the rows AKA index is the in-context domain
     # Cols are inquiry
     # And we use the expected sentiment shift for this
@@ -102,11 +102,12 @@ def plot_heatmap(df, value_to_plot, vmin, vmax, save_file_dir = None, save_file_
     plt.tight_layout()
 
     if save_file_name != None and save_file_dir != None:
+        os.makedirs(save_file_dir, exist_ok=True)
         save_name = os.path.join(save_file_dir, save_file_name)
         print(f"Saving heatmap to: {save_name}")
         plt.savefig(save_name)
 
-    if show:
+    if show_plot:
         plt.show()
 
 def run_sentiment_analysis(sentiment_model, df):
@@ -193,50 +194,12 @@ def get_shifts_and_plot_from_llm_sentiments():
     global_shift_max = max(global_shifts)
     global_shift_min = min(global_shifts)
 
-    for num_in_context_type, model_name, shift_df in expected_shifts_cache:
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            print(f"PLOTTING HEATMAP FOR {num_in_context_type}, {model_name}....")
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            
-            save_file_name = model_name + "_" + num_in_context_type + '_heatmap.png'
-            plot_heatmap(df=shift_df,
-                        value_to_plot='expected_sentiment_shift',
-                        save_file_dir=num_in_context_type,
-                        save_file_name=save_file_name,
-                        show=False,
-                        vmin=None,
-                        vmax=None)
-            
-            save_file_name = model_name + "_" + num_in_context_type + '_standardized_heatmap.png'
-            plot_heatmap(df=shift_df,
-                        value_to_plot='expected_sentiment_shift',
-                        save_file_dir=num_in_context_type,
-                        save_file_name=save_file_name,
-                        show=False,
-                        vmin=global_shift_min,
-                        vmax=global_shift_max)
-            
+    
+    plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
+                             expected_shifts_cache=expected_shifts_cache, sentiment_source='LLM_scoring',
+                             plot_only_standardized = True)
 
-            save_file_name = model_name + "_" + num_in_context_type + '_std_heatmap.png'
-            plot_heatmap(df=shift_df,
-                        value_to_plot='std_sentiment_shift',
-                        save_file_dir=num_in_context_type,
-                        save_file_name=save_file_name,
-                        show=False,
-                        vmin=None,
-                        vmax=None)
-            
-            save_file_name = model_name + "_" + num_in_context_type + '_standardized_std_heatmap.png'
-            plot_heatmap(df=shift_df,
-                        value_to_plot='std_sentiment_shift',
-                        save_file_dir=num_in_context_type,
-                        save_file_name=save_file_name,
-                        show=False,
-                        vmin=global_shift_min,
-                        vmax=global_shift_max)
-            
-
-def get_shifts_and_plot_from_hf_sentiment_distros(sentiment_model):
+def get_shifts_and_plot_from_hf_sentiment_distros(sentiment_model, binary = True, recalculate_hf_distros = False):
     # Collect this for consistent color scale
     global_shifts = []  
 
@@ -269,16 +232,19 @@ def get_shifts_and_plot_from_hf_sentiment_distros(sentiment_model):
                 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
                 llama_outputs =  load_jsonl_as_dataframe(os.path.join(sub_folder, 'results.jsonl'), save_as_csv = False)
-                # respective_sentiment_scores = run_sentiment_analysis(sentiment_model, llama_outputs)
-                # # Sentiments for this num context type, this model version
-                # output_dir = os.path.join("hf_sentiment_from_scratch", num_in_context_type)
-                # # If dir already exists that is fine otherwise make it
-                # os.makedirs(output_dir, exist_ok=True)
-                # # We want the same structure as with sentiment folder from the LLM scores
-                # sentiment_save_path = os.path.join(output_dir, f"{model_name}.jsonl")
-                # respective_sentiment_scores.to_json(sentiment_save_path, orient='records', lines=True)
 
-                respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('hf_sentiment_from_scratch', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
+                if recalculate_hf_distros:
+                    respective_sentiment_scores = run_sentiment_analysis(sentiment_model, llama_outputs)
+                    # Sentiments for this num context type, this model version
+                    output_dir = os.path.join("hf_sentiment_from_scratch", num_in_context_type)
+                    # If dir already exists that is fine otherwise make it
+                    os.makedirs(output_dir, exist_ok=True)
+                    # We want the same structure as with sentiment folder from the LLM scores
+                    sentiment_save_path = os.path.join(output_dir, f"{model_name}.jsonl")
+                    respective_sentiment_scores.to_json(sentiment_save_path, orient='records', lines=True)
+
+                else:
+                    respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('hf_sentiment_from_scratch', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
 
                 # Add the sentiment scores as cols
                 llama_combined_with_sentiments =  pd.concat([llama_outputs, respective_sentiment_scores['score']], axis=1)
@@ -317,53 +283,63 @@ def get_shifts_and_plot_from_hf_sentiment_distros(sentiment_model):
     global_shift_max = max(global_shifts)
     global_shift_min = min(global_shifts)
 
+    plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
+                            expected_shifts_cache=expected_shifts_cache, sentiment_source='HF_distilbert_binary',
+                            plot_only_standardized = True)
+
+
+def plot_heatmaps_from_cache(global_shift_min, global_shift_max, expected_shifts_cache, sentiment_source, plot_only_standardized = False):
     for num_in_context_type, model_name, shift_df in expected_shifts_cache:
+            save_file_dir = os.path.join("heatmaps", sentiment_source, num_in_context_type, model_name)
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             print(f"PLOTTING HEATMAP FOR {num_in_context_type}, {model_name}....")
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             
-            save_file_name = model_name + "_" + num_in_context_type + '_hf_sentiment_binary_heatmap.png'
-            plot_heatmap(df=shift_df,
-                        value_to_plot='expected_sentiment_shift',
-                        save_file_dir=num_in_context_type,
-                        save_file_name=save_file_name,
-                        show=False,
-                        vmin=None,
-                        vmax=None)
+            # If we also want to visualize with the stronger coloration, even if not comparable color labels 
+            if not plot_only_standardized:
+                save_file_name = model_name + "_" + num_in_context_type + '_sentiment_heatmap.png'
+                plot_heatmap(df=shift_df,
+                            value_to_plot='expected_sentiment_shift',
+                            save_file_dir=save_file_dir,
+                            save_file_name=save_file_name,
+                            show_plot=False,
+                            vmin=None,
+                            vmax=None)
             
-            save_file_name = model_name + "_" + num_in_context_type + '_hf_sentiment_binary_standardized_heatmap.png'
+            save_file_name = model_name + "_" + num_in_context_type + '_sentiment_standardized_heatmap.png'
             plot_heatmap(df=shift_df,
                         value_to_plot='expected_sentiment_shift',
-                        save_file_dir=num_in_context_type,
+                        save_file_dir=save_file_dir,
                         save_file_name=save_file_name,
-                        show=False,
+                        show_plot=False,
                         vmin=global_shift_min,
                         vmax=global_shift_max)
-            
+                
 
-            save_file_name = model_name + "_" + num_in_context_type + '_hf_sentiment_binary_std_heatmap.png'
-            plot_heatmap(df=shift_df,
-                        value_to_plot='std_sentiment_shift',
-                        save_file_dir=num_in_context_type,
-                        save_file_name=save_file_name,
-                        show=False,
-                        vmin=None,
-                        vmax=None)
+        # If we also want to visualize with the stronger coloration, even if not comparable color labels 
+            if not plot_only_standardized:
+                save_file_name = model_name + "_" + num_in_context_type + '_sentiment_std_heatmap.png'
+                plot_heatmap(df=shift_df,
+                            value_to_plot='std_sentiment_shift',
+                            save_file_dir=save_file_dir,
+                            save_file_name=save_file_name,
+                            show_plot=False,
+                            vmin=None,
+                            vmax=None)
             
-            save_file_name = model_name + "_" + num_in_context_type + '_hf_sentiment_binary__standardized_std_heatmap.png'
+            save_file_name = model_name + "_" + num_in_context_type + '_sentiment_standardized_std_heatmap.png'
             plot_heatmap(df=shift_df,
                         value_to_plot='std_sentiment_shift',
-                        save_file_dir=num_in_context_type,
+                        save_file_dir=save_file_dir,
                         save_file_name=save_file_name,
-                        show=False,
+                        show_plot=False,
                         vmin=global_shift_min,
                         vmax=global_shift_max)
-        
 
 def main():
     #  distilbert/distilbert-base-uncased-finetuned-sst-2-english
     sentiment_model = pipeline("sentiment-analysis", truncation=True, top_k=None)
-    get_shifts_and_plot_from_hf_sentiment_distros(sentiment_model)
+    get_shifts_and_plot_from_hf_sentiment_distros(sentiment_model, recalculate_hf_distros = False)
 
 if __name__ == "__main__":
     main()
