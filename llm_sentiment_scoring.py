@@ -64,7 +64,7 @@ def compute_expected_sentiment_shift_per_domain(df):
     # Ensure shift is a number
     df["sentiment_shift"] = df["sentiment_shift"].astype(float)
 
-    summary = (df.groupby(['in_context_domain', 'inquiry_domain']) 
+    summary = (df.groupby(['in_context_domain', 'inquiry_domain'], dropna=False) 
                 .agg(expected_sentiment_shift=('sentiment_shift', 'mean'),
                      std_sentiment_shift=('sentiment_shift', 'std'))
                 .reset_index())
@@ -73,22 +73,25 @@ def compute_expected_sentiment_shift_per_domain(df):
 
 
 def check_control_vs_control_shift(df):
+    ''' Simple unit test where the shift between control and control should be 0 '''
     # Get the expected sentiment shifts for domain given no context
     control_rows = df[df["in_context_domain"].isna()]
 
     # Just sanity check the shift is actually 0
-    control_shift__not_zero = control_rows[control_rows["sentiment_shift"] == 0]
+    control_shift_not_zero = control_rows[control_rows["expected_sentiment_shift"] != 0]
 
-    if control_shift__not_zero:
-        print("There was a shift between control and control so there is a bug!!")
+    if control_shift_not_zero.empty == False:
+        print("There was a shift between control and control so there is a bug X")
     else:
-        print("Control does not differ from control, as we hoped")
+        print("Control does not differ from control ✔")
 
 
 def plot_heatmap(df, title, value_to_plot, vmin, vmax, save_file_dir = None, save_file_name = None, show_plot = False, cmap = "coolwarm"):
     # Per https://seaborn.pydata.org/generated/seaborn.heatmap.html, the rows AKA index is the in-context domain
     # Cols are inquiry
     # And we use the expected sentiment shift for this
+    df = df[df['in_context_domain'].notna()]
+
     pivot_table = df.pivot(index='in_context_domain', columns='inquiry_domain', values=value_to_plot)
 
     plt.figure(figsize=(12, 8))
@@ -200,6 +203,9 @@ def get_shifts_and_plot_from_hf_sentiment_distros(include_neutral = True, recalc
                         sentiment_save_path = os.path.join(output_dir, f"{model_name}.jsonl")
                         respective_sentiment_scores.to_json(sentiment_save_path, orient='records', lines=True)
 
+                        # Don't need to recalculate again, done once
+                        recalculated = True
+
                     else:
                         respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('hf_includes_neutral_sentiment_from_scratch' if include_neutral else 'hf_sentiment_from_scratch', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
 
@@ -236,7 +242,7 @@ def get_shifts_and_plot_from_hf_sentiment_distros(include_neutral = True, recalc
                     # Lastly get the average of these expected shifts per post, for the expected shift per inquiry domain given in-context domain
                     expected_sentiment_shifts_per_inquiry_domain = compute_expected_sentiment_shift_per_domain(expected_sentiment_shifts_per_posts)
                     # Sanity check that the shift calcs are 0 for control vs control
-                    # check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
+                    check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
 
                     # Collect shift values for global vmin/vmax
                     global_shifts.extend(expected_sentiment_shifts_per_inquiry_domain['expected_sentiment_shift'].tolist())
@@ -251,10 +257,7 @@ def get_shifts_and_plot_from_hf_sentiment_distros(include_neutral = True, recalc
         plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
                                 expected_shifts_cache=expected_shifts_cache, sentiment_source= 'cardiff' if include_neutral else 'HF_distilbert',
                                 plot_only_standardized = True)
-        
-        # Don't need to recalculate sentiments for other class plots
-        recalculated == True
-
+    
 
 
 def get_shifts_and_plot_from_llm_sentiment_scores(include_neutral = True):
@@ -331,7 +334,7 @@ def get_shifts_and_plot_from_llm_sentiment_scores(include_neutral = True):
                     # Lastly get the average of these expected shifts per post, for the expected shift per inquiry domain given in-context domain
                     expected_sentiment_shifts_per_inquiry_domain = compute_expected_sentiment_shift_per_domain(expected_sentiment_shifts_per_posts)
                     # Sanity check that the shift calcs are 0 for control vs control
-                    # check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
+                    check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
 
                     # Collect shift values for global vmin/vmax
                     global_shifts.extend(expected_sentiment_shifts_per_inquiry_domain['expected_sentiment_shift'].tolist())
