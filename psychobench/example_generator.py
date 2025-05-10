@@ -13,22 +13,14 @@ import numpy as np
 import random
 from datasets import get_dataset
 
-def single_chat_llama(model_instance, tokenizer, questionnaire, questions_string, in_context_dataset, num_in_context_samples, in_context_examples_prompt_name):
-    # Randomly sample n in-context samples, if it is NOT the control, and we want the template for the in-context content consumed
-    if in_context_dataset != None:
-        in_context_posts_idx = np.random.choice(len(in_context_dataset),
-                                                size=num_in_context_samples,
-                                                replace=False).tolist()
-        in_context_docs = "\n\n".join(
-            [f"PREVIOUS content chunk consumed:\n{in_context_dataset[position]['content']}" for
-                i, position in enumerate(in_context_posts_idx)])
-        
+def single_chat_llama(model_instance, tokenizer, questionnaire, questions_string, in_context_docs, in_context_examples_prompt_name):
+    if in_context_docs != None:
         with open(os.path.join("prompts", "questionnaire", in_context_examples_prompt_name)) as p:
             prompt_template = p.read()
-        questionnaire_part_of_prompt = questionnaire["prompt"] + '\n' + questions_string 
+    questionnaire_part_of_prompt = questionnaire["prompt"] + '\n' + questions_string 
 
     # If control, just do the questionaire prompting, otherwise share the samples first
-    prompt = (questionnaire_part_of_prompt if in_context_dataset == None
+    prompt = (questionnaire_part_of_prompt if in_context_docs == None
               else prompt_template.format(in_context_docs=in_context_docs) + '\n\n' + questionnaire_part_of_prompt)
     
     # Applies the questionnaire-specific system prompt 
@@ -101,6 +93,18 @@ def subreddit_examples_generator(questionnaire, args):
                         # If not the control, we should have a subreddit name to sample from
                         in_context_dataset = None if subreddit_name == None else get_dataset("reddit", split=subreddit_name, num_comments=num_comments) 
 
+                        # Randomly sample a fixed number of n in-context samples, if it is NOT the control, and we want the template for the in-context content consumed
+                        # Is done once at the start before the model is prompted in chunks of questions, so the example given are static
+                        if in_context_dataset != None:
+                            in_context_posts_idx = np.random.choice(len(in_context_dataset),
+                                                                    size=num_in_context_samples,
+                                                                    replace=False).tolist()
+                            in_context_docs = "\n\n".join(
+                                [f"PREVIOUS content chunk consumed:\n{in_context_dataset[position]['content']}" for
+                                    i, position in enumerate(in_context_posts_idx)])
+                        else:
+                            in_context_docs = None
+
                         for questions_string in questions_list:
                             result = ''
                             if "llama" in model:
@@ -110,7 +114,7 @@ def subreddit_examples_generator(questionnaire, args):
                                 # Answers a chunk of questions at a time (questions_string), from my understanding
                                 inputs, result = single_chat_llama(model_instance=model_instance, tokenizer=tokenizer, 
                                                                    questionnaire=questionnaire, questions_string=questions_string, 
-                                                                   in_context_dataset=in_context_dataset, num_in_context_samples=num_in_context_samples,
+                                                                   in_context_docs=in_context_docs,
                                                                    in_context_examples_prompt_name=in_context_samples_prompt)
 
                             elif model.startswith("gpt"):
