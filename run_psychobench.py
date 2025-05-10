@@ -30,8 +30,8 @@ if __name__ == '__main__':
     parser.add_argument('--subreddit', type=str, default=None)
 
     # Model type params for us
-    parser.add_argument('--use-flash-attn', type=str, default=None)
-    parser.add_argument('--quantize', type=bool, default=None)
+    parser.add_argument('--use-flash-attn', type=str, action='store_true')
+    parser.add_argument('--quantize', type=bool, action='store_true')
 
     args = parser.parse_args()
 

@@ -67,8 +67,8 @@ def subreddit_examples_generator(questionnaire, args):
     num_in_context_samples = args.num_in_context_samples
     num_comments = args.num_comments
 
-    quantize = True if args.quantize != None else args.quantize
-    use_flash_attn = True if args.use_flash_attn != None else args.use_flash_attn
+    quantize = args.quantize
+    use_flash_attn = args.use_flash_attn
 
     with tqdm(total=total_iterations) as pbar:
         for i, header in enumerate(df.columns):
