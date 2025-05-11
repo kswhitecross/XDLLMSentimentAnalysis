@@ -1,13 +1,11 @@
 import os
 import json
 import numpy as np
-from transformers import pipeline
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 from pathlib import Path
-from tqdm import tqdm
-from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
+from transformers import pipeline
 
 def load_jsonl_as_dataframe(cross_domain_run_folder_path, save_as_csv = False):
 
@@ -45,6 +43,24 @@ def compute_expected_sentiment_scores_across_subreddit_posts(df):
     )
     return expected_score_per_post_within_domain_given_context
 
+
+def compute_std_sentiment_scores_across_subreddit_posts(df):
+    ''' Per inquiry_domain subreddit name, 
+        get the std of sentiment per inq_doc_idx within that subreddit
+        for both the control case and experimental case. '''  
+
+    # Make sure the scores and indices are numeric
+    df['score'] = df['score'].astype(float)
+    df['inq_doc_idx'] = df['inq_doc_idx'].astype(int)
+
+    std_score_per_post_within_domain_given_context = (
+        df.groupby(["in_context_domain", "inquiry_domain", "inq_doc_idx"], dropna=False)["score"]
+        .std()
+        .reset_index()
+        .rename(columns={"score": "std_score"})
+    )
+
+    return std_score_per_post_within_domain_given_context
 
 def compute_sentiment_shift_of_expectations_across_subreddit_posts(df):
     # We want to find the control scores per doc within an inquiry domain subreddit
@@ -149,13 +165,107 @@ def map_llm_scores(df):
     return df
 
 
-def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_distros = False):
+def plot_std_sentiment_per_posts(std_sentiment_per_posts, save_dir):
+    grouped = std_sentiment_per_posts.groupby(["in_context_domain", "inquiry_domain"])
+
+    print(f"Saving std histograms under: {save_dir}")
+
+    for (context, inquiry), group in grouped:
+        plt.figure(figsize=(6, 4))
+        sns.histplot(group["std_score"], kde=False)
+        plt.title(f"Std Dev of Sentiment Scores\nContext: {context}, Inquiry: {inquiry}")
+        plt.xlabel("Standard Deviation")
+        plt.ylabel("Number of Posts")
+        plt.tight_layout()
+        # plt.show()
+        save_file_name = f'in_context_{context}_inquiry_{inquiry}.png'
+        if save_file_name != None and save_dir != None:
+                os.makedirs(save_dir, exist_ok=True)
+                save_name = os.path.join(save_dir, save_file_name)
+                plt.savefig(save_name)
+        
+
+def plot_histogram_of_expected_sentiment_per_posts(expected_sentiment_per_posts, save_dir):
+    grouped = expected_sentiment_per_posts.groupby(["in_context_domain", "inquiry_domain"])
+
+    print(f"Saving expectation histograms under: {save_dir}")
+
+    for (context, inquiry), group in grouped:
+        plt.figure(figsize=(6, 4))
+        sns.histplot(group["expected_score"], kde=True)
+        plt.title(f"Expected Sentiment Scores\nContext: {context}, Inquiry: {inquiry}")
+        plt.xlabel("Average Sentiment Score")
+        plt.ylabel("Number of Posts")
+        plt.tight_layout()
+
+        save_file_name = f'in_context_{context}_inquiry_{inquiry}_mean.png'
+        if save_file_name and save_dir:
+            os.makedirs(save_dir, exist_ok=True)
+            save_path = os.path.join(save_dir, save_file_name)
+            plt.savefig(save_path)
+
+
+
+def plot_histogram_of_expected_sentiment_shifts(expected_sentiment_shifts_per_posts, save_dir):
+    grouped = expected_sentiment_shifts_per_posts.groupby(["in_context_domain", "inquiry_domain"])
+
+    print(f"Saving shift expectation histograms under: {save_dir}")
+
+    for (context, inquiry), group in grouped:
+        plt.figure(figsize=(6, 4))
+        sns.histplot(group["sentiment_shift"], kde=True)
+        plt.title(f"Expected Sentiment Scores Shifts\nContext: {context}, Inquiry: {inquiry}")
+        plt.xlabel("Sentiment Score Shifts")
+        plt.ylabel("Number of Posts")
+        plt.tight_layout()
+
+        save_file_name = f'in_context_{context}_inquiry_{inquiry}_mean.png'
+        if save_file_name and save_dir:
+            os.makedirs(save_dir, exist_ok=True)
+            save_path = os.path.join(save_dir, save_file_name)
+            plt.savefig(save_path)
+
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from concurrent.futures import ProcessPoolExecutor
+import pandas as pd
+
+def _plot_single_shift_histogram(args):
+    (context, inquiry), group, save_dir = args
+
+    plt.figure(figsize=(6, 4))
+    sns.histplot(group["sentiment_shift"], kde=True)
+    plt.title(f"Expected Sentiment Score Shifts\nContext: {context}, Inquiry: {inquiry}")
+    plt.xlabel("Sentiment Score Shifts")
+    plt.ylabel("Number of Posts")
+    plt.tight_layout()
+
+    os.makedirs(save_dir, exist_ok=True)
+    save_file_name = f'in_context_{context}_inquiry_{inquiry}_mean.png'
+    save_path = os.path.join(save_dir, save_file_name)
+    plt.savefig(save_path)
+    plt.close()  # Important to avoid memory buildup in multiprocessing
+
+def plot_histogram_of_expected_sentiment_shifts_parallel(expected_sentiment_shifts_per_posts, save_dir, max_workers=4):
+    grouped = expected_sentiment_shifts_per_posts.groupby(["in_context_domain", "inquiry_domain"])
+    print(f"Saving shift expectation histograms under: {save_dir}")
+
+    tasks = [((context, inquiry), group, save_dir) for (context, inquiry), group in grouped]
+
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        executor.map(_plot_single_shift_histogram, tasks)
+
+
+def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_distros = False, plot_shift_histograms = False):
     if include_neutral:
         sentiment_model = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment-latest", truncation=True, max_length= 512, top_k=None)
         sentiment_classes =  ['positive', 'negative', 'neutral', 'binary']
     else:
         sentiment_model = pipeline("sentiment-analysis", truncation=True, top_k=None)
         sentiment_classes =  ['positive', 'negative', 'binary'] 
+
+    sentiment_source = 'cardiff' if include_neutral else 'HF_distilbert'
 
     # Collect this for consistent color scale
     global_shifts = []  
@@ -248,16 +358,26 @@ def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_
                     global_shifts.extend(expected_sentiment_shifts_per_inquiry_domain['expected_sentiment_shift'].tolist())
                     # Cache for second pass
                     expected_shifts_cache.append((sentiment_class, num_in_context_type, model_name, expected_sentiment_shifts_per_inquiry_domain))
-    
+
+                    if plot_shift_histograms:
+                        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        print(f"PLOTTING HISTOGRAMS OF POST-LEVEL SENTIMENT SHIFTS PER CROSS-DOMAIN PAIR WITH {num_in_context_type}, {model_name}....")
+                        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        
+                        save_file_dir = os.path.join("shift_histograms", sentiment_source, sentiment_class, num_in_context_type, model_name)
+                        plot_histogram_of_expected_sentiment_shifts_parallel(expected_sentiment_shifts_per_posts=expected_sentiment_shifts_per_posts, save_dir = save_file_dir)
+
+
     # After we have global max/min shifts for this sentiment class
     global_shift_max = max(global_shifts)
     global_shift_min = min(global_shifts)    
     
-    sentiment_source = 'cardiff' if include_neutral else 'HF_distilbert'
     return global_shift_max, global_shift_min, sentiment_source, expected_shifts_cache
 
     
-def get_shifts_from_llm_sentiment_scores(include_neutral = True): 
+def get_shifts_from_llm_sentiment_scores(plot_shift_histograms = False): 
+    sentiment_source = 'llm_scores'
+
     sentiment_classes =  ['binary', '5_star']
 
     # Collect this for consistent color scale
@@ -315,7 +435,7 @@ def get_shifts_from_llm_sentiment_scores(include_neutral = True):
 
 
                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-                    print(f"CALCULATING SHIFTS WITH {num_in_context_type}, {model_name}....")
+                    print(f"CALCULATING EXPECTED SHIFTS WITH {num_in_context_type}, {model_name}....")
                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
                     # First get the expected sentiment per post within an inquiry domain
@@ -332,11 +452,19 @@ def get_shifts_from_llm_sentiment_scores(include_neutral = True):
                     # Cache for second pass
                     expected_shifts_cache.append((sentiment_class, num_in_context_type, model_name, expected_sentiment_shifts_per_inquiry_domain))
         
+                    if plot_shift_histograms:
+                        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        print(f"PLOTTING HISTOGRAMS OF POST-LEVEL SENTIMENT SHIFTS PER CROSS-DOMAIN PAIR WITH {num_in_context_type}, {model_name}....")
+                        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                        
+                        save_file_dir = os.path.join("shift_histograms", sentiment_source, sentiment_class, num_in_context_type, model_name)
+                        plot_histogram_of_expected_sentiment_shifts_parallel(expected_sentiment_shifts_per_posts=expected_sentiment_shifts_per_posts, save_dir = save_file_dir)
+
+
     # After we have global max/min shifts for this sentiment class
     global_shift_max = max(global_shifts)
     global_shift_min = min(global_shifts)    
     
-    sentiment_source = 'llm_scores'
     return global_shift_max, global_shift_min, sentiment_source, expected_shifts_cache
 
 
@@ -477,14 +605,14 @@ def main():
     global_shift_min = min(global_shift_min_hf, global_shift_min_hf_with_neutral, global_shift_min_llm)
 
     
-    # # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL GLOBAL
-    # plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
-    #                         expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
-    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
+    # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL GLOBAL
+    plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
+                            expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
+                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
     
-    # plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
-    #                         expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
-    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
+    plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
+                            expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
+                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
 
     
     plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
@@ -492,14 +620,14 @@ def main():
                             plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
         
 
-    # # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL TO THE MODEL
-    # plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf, global_shift_min=global_shift_min_hf, 
-    #                         expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
-    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
+    # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL TO THE MODEL
+    plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf, global_shift_min=global_shift_min_hf, 
+                            expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
+                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
     
-    # plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf_with_neutral, global_shift_min=global_shift_min_hf_with_neutral, 
-    #                         expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
-    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
+    plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf_with_neutral, global_shift_min=global_shift_min_hf_with_neutral, 
+                            expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
+                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
 
     
     plot_heatmaps_from_cache(global_shift_max=global_shift_max_llm, global_shift_min=global_shift_min_llm, 
