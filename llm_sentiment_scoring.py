@@ -258,7 +258,7 @@ def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_
 
     
 def get_shifts_from_llm_sentiment_scores(include_neutral = True): 
-    sentiment_classes =  ['binary']
+    sentiment_classes =  ['binary', '5_star']
 
     # Collect this for consistent color scale
     global_shifts = []  
@@ -296,7 +296,8 @@ def get_shifts_from_llm_sentiment_scores(include_neutral = True):
                     llama_outputs =  load_jsonl_as_dataframe(os.path.join(sub_folder, 'results.jsonl'), save_as_csv = False)
                     # Map these to binary -1 0 1
                     respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('sentiment', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
-                    respective_sentiment_scores = map_llm_scores(respective_sentiment_scores)
+                    if sentiment_class == "binary":
+                        respective_sentiment_scores = map_llm_scores(respective_sentiment_scores)
 
                     # Add the sentiment scores as 
                     llama_combined_with_sentiments =  pd.concat([llama_outputs, respective_sentiment_scores], axis=1)
@@ -317,15 +318,8 @@ def get_shifts_from_llm_sentiment_scores(include_neutral = True):
                     print(f"CALCULATING SHIFTS WITH {num_in_context_type}, {model_name}....")
                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-                    # Since we are only focusing on one class at a time, we are treating this as the 'score' variable
-                    if sentiment_class != 'binary':
-                        df_honed_in_on_class_score = llama_combined_with_sentiments.copy()
-                        df_honed_in_on_class_score['score'] = df_honed_in_on_class_score[sentiment_class]  
-                    else:
-                        df_honed_in_on_class_score = llama_combined_with_sentiments.copy()
-
                     # First get the expected sentiment per post within an inquiry domain
-                    expected_sentiment_per_posts = compute_expected_sentiment_scores_across_subreddit_posts(df_honed_in_on_class_score)
+                    expected_sentiment_per_posts = compute_expected_sentiment_scores_across_subreddit_posts(llama_combined_with_sentiments)
                     # Then get the expected sentiment shift per post within an inquiry domain
                     expected_sentiment_shifts_per_posts = compute_sentiment_shift_of_expectations_across_subreddit_posts(expected_sentiment_per_posts)
                     # Lastly get the average of these expected shifts per post, for the expected shift per inquiry domain given in-context domain
@@ -344,6 +338,7 @@ def get_shifts_from_llm_sentiment_scores(include_neutral = True):
     
     sentiment_source = 'llm_scores'
     return global_shift_max, global_shift_min, sentiment_source, expected_shifts_cache
+
 
 def plot_heatmaps_from_cache(global_shift_min, global_shift_max, expected_shifts_cache, sentiment_source = None, plot_only_standardized = False):
     for sentiment_class, num_in_context_type, model_name, shift_df in expected_shifts_cache:
@@ -482,29 +477,29 @@ def main():
     global_shift_min = min(global_shift_min_hf, global_shift_min_hf_with_neutral, global_shift_min_llm)
 
     
-    # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL GLOBAL
-    plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
-                            expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
-                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
+    # # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL GLOBAL
+    # plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
+    #                         expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
+    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
     
-    plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
-                            expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
-                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
+    # plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
+    #                         expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
+    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
 
     
     plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
                             expected_shifts_cache=expected_shifts_cache_llm, sentiment_source=sentiment_source_llm,
                             plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_across_all")
-    
+        
 
-    # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL TO THE MODEL
-    plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf, global_shift_min=global_shift_min_hf, 
-                            expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
-                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
+    # # We can plot all the shifts per combo of num examples type and model size for said class GLOBAL TO THE MODEL
+    # plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf, global_shift_min=global_shift_min_hf, 
+    #                         expected_shifts_cache=expected_shifts_cache_hf, sentiment_source=sentiment_source_hf,
+    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
     
-    plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf_with_neutral, global_shift_min=global_shift_min_hf_with_neutral, 
-                            expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
-                            plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
+    # plot_heatmaps_from_cache(global_shift_max=global_shift_max_hf_with_neutral, global_shift_min=global_shift_min_hf_with_neutral, 
+    #                         expected_shifts_cache=expected_shifts_cache_hf_with_neutral, sentiment_source=sentiment_source_hf_with_neutral,
+    #                         plot_only_standardized = False, heatmap_parent_folder_name = "heatmaps_global_to_sentiment_model")
 
     
     plot_heatmaps_from_cache(global_shift_max=global_shift_max_llm, global_shift_min=global_shift_min_llm, 
