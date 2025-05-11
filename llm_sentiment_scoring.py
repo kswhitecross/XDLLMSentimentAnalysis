@@ -148,117 +148,6 @@ def map_llm_scores(df):
     df['score'] = df['score'].apply(map_score)
     return df
 
-# def get_shifts_and_plot_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_distros = False):
-#     if include_neutral:
-#         sentiment_model = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment-latest", truncation=True, max_length= 512, top_k=None)
-#         sentiment_classes =  ['positive', 'negative', 'neutral', 'binary']
-#     else:
-#         sentiment_model = pipeline("sentiment-analysis", truncation=True, top_k=None)
-#         sentiment_classes =  ['positive', 'negative', 'binary'] 
-
-#     for sentiment_class in sentiment_classes:
-#         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#         print(f"FOCUSING ON {sentiment_class} SHIFTS....")
-#         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-
-#         # Collect this for consistent color scale
-#         global_shifts = []  
-
-#         # So ya don't need to recalculate everything
-#         expected_shifts_cache = []        
-
-#         recalculated  = False
-#         for num_in_context_type in ['long', 'original']:
-            
-#             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#             print(f"ANALYZING LLAMA MODELS with {num_in_context_type} IN-CONTEXT SAMPLES....")
-#             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-#             folder = Path(num_in_context_type)
-#             for sub_folder in folder.iterdir():
-#                 if sub_folder.is_dir():
-
-#                     # Get the model name of the current directory of results
-#                     sub_folder_name_parts = sub_folder.name.split("_")
-#                     # if sub_folder_name_parts[1] == '70B':
-#                     #     model_name = "_".join(sub_folder_name_parts[:3])
-#                     # else:
-#                     #     model_name = "_".join(sub_folder_name_parts[:2])
-#                     model_name = "_".join(sub_folder_name_parts[:2])
-
-
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#                     print(f"GETTING HF SCORE DISTROS WITH {num_in_context_type}, {model_name}....")
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#                     llama_outputs =  load_jsonl_as_dataframe(os.path.join(sub_folder, 'results.jsonl'), save_as_csv = False)
-
-#                     if recalculated == False and recalculate_hf_distros:
-#                         respective_sentiment_scores = run_sentiment_analysis(sentiment_model, llama_outputs)
-#                         # Sentiments for this num context type, this model version
-#                         output_dir = os.path.join('hf_includes_neutral_sentiment_from_scratch' if include_neutral else 'hf_sentiment_from_scratch', num_in_context_type)
-#                         # If dir already exists that is fine otherwise make it
-#                         os.makedirs(output_dir, exist_ok=True)
-#                         # We want the same structure as with sentiment folder from the LLM scores
-#                         sentiment_save_path = os.path.join(output_dir, f"{model_name}.jsonl")
-#                         respective_sentiment_scores.to_json(sentiment_save_path, orient='records', lines=True)
-
-#                         # Don't need to recalculate again, done once
-#                         recalculated = True
-
-#                     else:
-#                         respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('hf_includes_neutral_sentiment_from_scratch' if include_neutral else 'hf_sentiment_from_scratch', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
-
-#                     # Add the sentiment scores as 
-#                     llama_combined_with_sentiments =  pd.concat([llama_outputs, respective_sentiment_scores], axis=1)
-                    
-#                     # Just a sanity check that our scores in fact do align fully with the OG output rows
-#                     print("Llama outputs shape:", llama_outputs.shape)
-#                     print("Sentiment scores shape:", respective_sentiment_scores.shape)
-#                     print("Merged shape:", llama_combined_with_sentiments.shape)
-#                     print("# Null doc idx:", llama_combined_with_sentiments['inq_doc_idx'].isna().sum())
-#                     print("# Null scores:", llama_combined_with_sentiments['score'].isna().sum())
-#                     print("The NaN rows, if any:", respective_sentiment_scores[respective_sentiment_scores['score'].isna()])
-
-#                     # TODO check in on this
-#                     llama_combined_with_sentiments = llama_combined_with_sentiments[llama_combined_with_sentiments['score'].notna()]
-
-
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#                     print(f"CALCULATING SHIFTS WITH {num_in_context_type}, {model_name}....")
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-#                     # Since we are only focusing on one class at a time, we are treating this as the 'score' variable
-#                     if sentiment_class != 'binary':
-#                         df_honed_in_on_class_score = llama_combined_with_sentiments.copy()
-#                         df_honed_in_on_class_score['score'] = df_honed_in_on_class_score[sentiment_class]  
-#                     else:
-#                         df_honed_in_on_class_score = llama_combined_with_sentiments.copy()
-
-#                     # First get the expected sentiment per post within an inquiry domain
-#                     expected_sentiment_per_posts = compute_expected_sentiment_scores_across_subreddit_posts(df_honed_in_on_class_score)
-#                     # Then get the expected sentiment shift per post within an inquiry domain
-#                     expected_sentiment_shifts_per_posts = compute_sentiment_shift_of_expectations_across_subreddit_posts(expected_sentiment_per_posts)
-#                     # Lastly get the average of these expected shifts per post, for the expected shift per inquiry domain given in-context domain
-#                     expected_sentiment_shifts_per_inquiry_domain = compute_expected_sentiment_shift_per_domain(expected_sentiment_shifts_per_posts)
-#                     # Sanity check that the shift calcs are 0 for control vs control
-#                     check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
-
-#                     # Collect shift values for global vmin/vmax
-#                     global_shifts.extend(expected_sentiment_shifts_per_inquiry_domain['expected_sentiment_shift'].tolist())
-#                     # Cache for second pass
-#                     expected_shifts_cache.append((sentiment_class, num_in_context_type, model_name, expected_sentiment_shifts_per_inquiry_domain))
-        
-#         # After we have global max/min shifts for this sentiment class
-#         global_shift_max = max(global_shifts)
-#         global_shift_min = min(global_shifts)    
-        
-#         # We can plot all the shifts per combo of num examples type and model size for said class
-#         plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
-#                                 expected_shifts_cache=expected_shifts_cache, sentiment_source= 'cardiff' if include_neutral else 'HF_distilbert',
-#                                 plot_only_standardized = True)
-    
-
 
 def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_distros = False):
     if include_neutral:
@@ -268,17 +157,16 @@ def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_
         sentiment_model = pipeline("sentiment-analysis", truncation=True, top_k=None)
         sentiment_classes =  ['positive', 'negative', 'binary'] 
 
+    # Collect this for consistent color scale
+    global_shifts = []  
+
+    # So ya don't need to recalculate everything
+    expected_shifts_cache = []       
     for sentiment_class in sentiment_classes:
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(f"FOCUSING ON {sentiment_class} SHIFTS....")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-
-        # Collect this for consistent color scale
-        global_shifts = []  
-
-        # So ya don't need to recalculate everything
-        expected_shifts_cache = []        
+ 
 
         recalculated  = False
         for num_in_context_type in ['long', 'original']:
@@ -367,113 +255,21 @@ def get_shifts_from_hf_sentiment_distros(include_neutral = True, recalculate_hf_
     
     sentiment_source = 'cardiff' if include_neutral else 'HF_distilbert'
     return global_shift_max, global_shift_min, sentiment_source, expected_shifts_cache
- 
-    
-# def get_shifts_and_plot_from_llm_sentiment_scores(include_neutral = True): 
-#     sentiment_classes =  ['binary']
-
-#     for sentiment_class in sentiment_classes:
-#         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#         print(f"FOCUSING ON {sentiment_class} SHIFTS....")
-#         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-#         # Collect this for consistent color scale
-#         global_shifts = []  
-
-#         # So ya don't need to recalculate everything
-#         expected_shifts_cache = []        
-
-#         for num_in_context_type in ['long', 'original']:
-            
-#             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#             print(f"ANALYZING LLAMA MODELS with {num_in_context_type} IN-CONTEXT SAMPLES....")
-#             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-#             folder = Path(num_in_context_type)
-#             for sub_folder in folder.iterdir():
-#                 if sub_folder.is_dir():
-
-#                     # Get the model name of the current directory of results
-#                     sub_folder_name_parts = sub_folder.name.split("_")
-#                     # if sub_folder_name_parts[1] == '70B':
-#                     #     model_name = "_".join(sub_folder_name_parts[:3])
-#                     # else:
-#                     #     model_name = "_".join(sub_folder_name_parts[:2])
-#                     model_name = "_".join(sub_folder_name_parts[:2])
-
-
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#                     print(f"GETTING LLM SCORE DISTROS WITH {num_in_context_type}, {model_name}....")
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#                     llama_outputs =  load_jsonl_as_dataframe(os.path.join(sub_folder, 'results.jsonl'), save_as_csv = False)
-#                     # Map these to binary -1 0 1
-#                     respective_sentiment_scores = load_jsonl_as_dataframe(os.path.join('sentiment', num_in_context_type, model_name + '.jsonl'), save_as_csv = False)
-#                     respective_sentiment_scores = map_llm_scores(respective_sentiment_scores)
-
-#                     # Add the sentiment scores as 
-#                     llama_combined_with_sentiments =  pd.concat([llama_outputs, respective_sentiment_scores], axis=1)
-                    
-#                     # Just a sanity check that our scores in fact do align fully with the OG output rows
-#                     print("Llama outputs shape:", llama_outputs.shape)
-#                     print("Sentiment scores shape:", respective_sentiment_scores.shape)
-#                     print("Merged shape:", llama_combined_with_sentiments.shape)
-#                     print("# Null doc idx:", llama_combined_with_sentiments['inq_doc_idx'].isna().sum())
-#                     print("# Null scores:", llama_combined_with_sentiments['score'].isna().sum())
-#                     print("The NaN rows, if any:", respective_sentiment_scores[respective_sentiment_scores['score'].isna()])
-
-#                     # TODO check in on this
-#                     llama_combined_with_sentiments = llama_combined_with_sentiments[llama_combined_with_sentiments['score'].notna()]
-
-
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#                     print(f"CALCULATING SHIFTS WITH {num_in_context_type}, {model_name}....")
-#                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-#                     # Since we are only focusing on one class at a time, we are treating this as the 'score' variable
-#                     if sentiment_class != 'binary':
-#                         df_honed_in_on_class_score = llama_combined_with_sentiments.copy()
-#                         df_honed_in_on_class_score['score'] = df_honed_in_on_class_score[sentiment_class]  
-#                     else:
-#                         df_honed_in_on_class_score = llama_combined_with_sentiments.copy()
-
-#                     # First get the expected sentiment per post within an inquiry domain
-#                     expected_sentiment_per_posts = compute_expected_sentiment_scores_across_subreddit_posts(df_honed_in_on_class_score)
-#                     # Then get the expected sentiment shift per post within an inquiry domain
-#                     expected_sentiment_shifts_per_posts = compute_sentiment_shift_of_expectations_across_subreddit_posts(expected_sentiment_per_posts)
-#                     # Lastly get the average of these expected shifts per post, for the expected shift per inquiry domain given in-context domain
-#                     expected_sentiment_shifts_per_inquiry_domain = compute_expected_sentiment_shift_per_domain(expected_sentiment_shifts_per_posts)
-#                     # Sanity check that the shift calcs are 0 for control vs control
-#                     check_control_vs_control_shift(expected_sentiment_shifts_per_inquiry_domain)
-
-#                     # Collect shift values for global vmin/vmax
-#                     global_shifts.extend(expected_sentiment_shifts_per_inquiry_domain['expected_sentiment_shift'].tolist())
-#                     # Cache for second pass
-#                     expected_shifts_cache.append((sentiment_class, num_in_context_type, model_name, expected_sentiment_shifts_per_inquiry_domain))
-        
-#         # After we have global max/min shifts for this sentiment class
-#         global_shift_max = max(global_shifts)
-#         global_shift_min = min(global_shifts)    
-        
-#         # We can plot all the shifts per combo of num examples type and model size for said class
-#         plot_heatmaps_from_cache(global_shift_max=global_shift_max, global_shift_min=global_shift_min, 
-#                                 expected_shifts_cache=expected_shifts_cache, sentiment_source= 'llm_scores',
-#                                 plot_only_standardized = True)
-
 
     
 def get_shifts_from_llm_sentiment_scores(include_neutral = True): 
     sentiment_classes =  ['binary']
 
+    # Collect this for consistent color scale
+    global_shifts = []  
+
+    # So ya don't need to recalculate everything
+    expected_shifts_cache = []    
+    
     for sentiment_class in sentiment_classes:
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(f"FOCUSING ON {sentiment_class} SHIFTS....")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-        # Collect this for consistent color scale
-        global_shifts = []  
-
-        # So ya don't need to recalculate everything
-        expected_shifts_cache = []        
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")    
 
         for num_in_context_type in ['long', 'original']:
             
