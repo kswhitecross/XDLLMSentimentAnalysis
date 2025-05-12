@@ -49,7 +49,7 @@ Additionally, to stop the experiment after a single run, use the `short_circuit`
 
 `main.py` main function that reads a config file and creates the configuration, runs an experiment, and writes the results to a folder.
 
-## Requriments (that I can think of)
+## Major Requriments 
 - [`torch`](https://pytorch.org/)
 - [`transformers`](https://huggingface.co/docs/transformers/installation)
 - [`accelerate`](https://pypi.org/project/accelerate/)
@@ -59,7 +59,7 @@ Additionally, to stop the experiment after a single run, use the `short_circuit`
 
 ### Flash Attention
 
-For major speedups on longer context experiments, flash attention reduces the memory impact and improves performance.  However, it is complex to install, so only recommended for systems that will be used to run major experiemnts.
+For major speedups on longer context experiments, flash attention reduces the memory impact and improves performance.  However, it is complex to install, so only recommended for systems that will be used to run major experiments.
 
 - [`flash-attn`](https://github.com/Dao-AILab/flash-attention) (gpu-only)
 
@@ -70,3 +70,18 @@ For major speedups on longer context experiments, flash attention reduces the me
 - [News](https://www.kaggle.com/datasets/aryansingh0909/nyt-articles-21m-2000-present)
 
 Don't forget to change FILE_PATH in datasets/books.py, datasets/youtube.py and datasets/news.py with the path to your data.
+
+## Sentiment Analysis
+
+A LLM-based sentiment analysis of each model response can be performed by using `sentiment_analysis.py` and specifying the folder containing each run you want to perform sentiment analysis on.  For example:
+
+`python sentiment_analysis.py --runs_dir [path/to/your/runs]`
+
+This will produce a `sentiment.jsonl` file alongside `results.jsonl`, with each line containing a score and justification.
+
+## Pyschobench
+
+[TODO]
+
+
+

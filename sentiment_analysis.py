@@ -138,7 +138,7 @@ if __name__ == "__main__":
     parser.add_argument("--runs_dir", type=str, default='runs/reddit/implicit/original',
                         help='Location of subfolders containing `results.jsonl` files.')
     parser.add_argument("--use_gpt", type=bool, default=False, help="Use ChatGPT 4 to generate the "
-                        "responses")
+                        "responses (NOT IMPLEMENTED)")
     parser.add_argument("--prompt", type=str, default='prompts/SentimentAnalysis.txt',
                         help="Prompt filepath")
     parser.add_argument("--system_prompt", type=str, default='prompts/SentimentAnalysisSystem.txt',
