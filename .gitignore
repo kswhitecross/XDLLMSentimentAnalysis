@@ -182,3 +182,5 @@ llama_3b/
 llama_8b/
 llama_70b_q/
 self_scoring/
+psychobench_results
+med/
