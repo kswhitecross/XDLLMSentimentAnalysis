@@ -1,0 +1,6 @@
+Here are some definitions to consider for the following task:
+'content chunks': (Noun) Chunks of data from the Internet, from a variety of domains.
+'consumed': (Verb) When a user views content chunks, takes interest, and/or lingers on it for a notable amount of time.
+
+For background, please analyze the following PREVIOUS content chunks that YOU (the AI chatbot) recently consumed on the Internet, picking up any patterns (subtle or not):
+{in_context_docs}

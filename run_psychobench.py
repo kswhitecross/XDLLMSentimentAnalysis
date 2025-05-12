@@ -4,7 +4,7 @@ from psychobench.example_generator import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', required=True, type=str, default='text-davinci-003',
+    parser.add_argument('--model', required=True, type=str, default='meta-llama/Llama-3.2-3B-Instruct',
                         help='The name of the model to test')
     parser.add_argument('--questionnaire', required=True, type=str,
                         help='Comma-separated list of questionnaires')
@@ -21,8 +21,18 @@ if __name__ == '__main__':
 
     # Generator-specific parameters, can be discarded if users implement their own generators
     parser.add_argument('--openai-key', type=str, default='')
-    
+
+    # In-context example type params for us
+    parser.add_argument('--in-context-samples-prompt', type=str, default=None)
+    parser.add_argument('--num-in-context-samples', type=int, default=10)
+    parser.add_argument('--num-comments', type=int, default=10)
+
+    parser.add_argument('--subreddit', type=str, default=None)
+
+    # Model type params for us
+    parser.add_argument('--use-flash-attn', action='store_true')
+    parser.add_argument('--quantize', action='store_true')
+
     args = parser.parse_args()
 
-    run_psychobench(args, custom_generator)
-
+    run_psychobench(args, subreddit_examples_generator)
