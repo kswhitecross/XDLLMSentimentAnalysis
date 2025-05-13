@@ -1,0 +1,116 @@
+{
+    "441": {
+        "in_context_domain": "funny",
+        "inquiry_domain": "funny",
+        "in_context_doc_indices": [
+            68,
+            11,
+            48,
+            66,
+            36,
+            23,
+            90,
+            84,
+            56,
+            5
+        ],
+        "inq_doc_idx": 8,
+        "question_order": [
+            0
+        ],
+        "output_instance_number": 2,
+        "gen_time": 1.9908382892608643,
+        "model_answer": "Based on the NEW content chunk, the main takeaways appear to be the joy and excitement of a 10-year-old experiencing a unique and fun event, in this case, staying in an 18+ dorm. The content highlights the special bond between the sibling and the positive impact of this experience on the younger brother. The comments also reveal a sense of nostalgia and shared memories between the siblings, with some commenters expressing their own fondness for similar experiences and the importance of having a positive role model or older sibling. Overall, the tone is lighthearted and celebratory, with a focus on the wholesome nature of the situation.",
+        "n_input_tokens": 3655,
+        "n_output_tokens": 130
+    },
+    "6905": {
+        "in_context_domain": "music",
+        "inquiry_domain": "music",
+        "in_context_doc_indices": [
+            35,
+            9,
+            5,
+            82,
+            85,
+            29,
+            52,
+            46,
+            84,
+            38
+        ],
+        "inq_doc_idx": 5,
+        "question_order": [
+            0
+        ],
+        "output_instance_number": 1,
+        "gen_time": 2.380549192428589,
+        "model_answer": "Based on the NEW content chunk, the main takeaways are:\n\nThe main focus of this content chunk appears to be on the positive actions of Sabrina Carpenter, an American singer and actress, who has been actively engaging with her fans on her tour. The comments highlight her efforts to encourage and register voters, especially young people, through her HeadCount initiative. The tone of the comments is overwhelmingly supportive and admiring of Carpenter's commitment to social activism and her ability to inspire her fans. The comments also contain some lighthearted and playful jabs at her fellow artists, such as Olivia, but these seem to be more joking and teasing rather than critical. Overall, the content chunk presents a positive and uplifting portrayal of Sabrina Carpenter and her impact on her fans.",
+        "n_input_tokens": 4317,
+        "n_output_tokens": 156
+    },
+    "149": {
+        "in_context_domain": "memes",
+        "inquiry_domain": "funny",
+        "in_context_doc_indices": [
+            92,
+            99,
+            36,
+            30,
+            88,
+            62,
+            67,
+            19,
+            69,
+            70
+        ],
+        "inq_doc_idx": 2,
+        "question_order": [
+            0
+        ],
+        "output_instance_number": 5,
+        "gen_time": 3.522742509841919,
+        "model_answer": "Based on the NEW content chunk, the main takeaways for you appear to be:\n\nYou're expressing frustration with the repetition of certain trends or concepts, such as the reuse of old ideas or situations, as hinted by phrases like \"Not again\" and \"I wish history doesn't repeat itself.\" This sentiment is also reflected in your comments about live-action reboots, with the suggestion that they're getting \"out of hand.\"\n\nYou seem to appreciate unique or exceptional content, as evidenced by your enthusiastic reaction to a specific picture, which led to you granting a wish for a print. This appreciation for standout content is also reflected in your comments about a previous post that you found to be the \"best picture\" you've ever seen.\n\nYou appear to be somewhat fatalistic or pessimistic about the state of the world, as suggested by your comment about a gamma-ray burst causing the extinction of half of the planet. This tone is also reflected in your comment about the economy, which implies that you're concerned about its potential collapse.\n\nOverall, your comments suggest that you're a critical thinker who appreciates unique or exceptional content, but also has a somewhat pessimistic outlook on the world and its trends.",
+        "n_input_tokens": 3029,
+        "n_output_tokens": 241
+    },
+    "10447": {
+        "in_context_domain": null,
+        "inquiry_domain": "showerthoughts",
+        "in_context_doc_indices": null,
+        "inq_doc_idx": 9,
+        "question_order": [
+            0
+        ],
+        "output_instance_number": 3,
+        "gen_time": 3.4026851654052734,
+        "model_answer": "The main takeaways from this NEW content chunk appear to be:\n\n* The author is discussing the concept of \"room temperature IQ\" and how it is perceived differently in the US compared to other countries, specifically the UK (implied by the mention of Celsius).\n* The author is expressing surprise and amusement at the idea that someone could have a room temperature IQ, which they initially thought was a humorous or nonsensical concept.\n* The author has done some research and estimates that approximately 1 in 20 people (or 5%) in the US would fall into this category, which they found through a basic calculation.\n* The author is poking fun at the differences in temperature scales between the US (Fahrenheit) and other countries (Celsius), suggesting that the concept of room temperature IQ is more relatable and common in the UK.\n* The author is also making lighthearted jokes about the idea of someone being a \"non-responsive jellyfish\" or a \"low-watt gurgler in a high-back chair\" if they have a low IQ, implying that the concept is being used in a humorous way to highlight the perceived differences in IQ scoring systems.",
+        "n_input_tokens": 417,
+        "n_output_tokens": 237
+    },
+    "760": {
+        "in_context_domain": "showerthoughts",
+        "inquiry_domain": "funny",
+        "in_context_doc_indices": [
+            11,
+            53,
+            37,
+            4,
+            54,
+            34,
+            28,
+            32,
+            74,
+            45
+        ],
+        "inq_doc_idx": 13,
+        "question_order": [
+            0
+        ],
+        "output_instance_number": 1,
+        "gen_time": 2.8980071544647217,
+        "model_answer": "Based on the provided NEW content chunk, it appears that the author is sharing a personal anecdote about a friend's cat that would hide in the same spot under the bed every time the doorbell rang. The author seems to be amused by this quirk and finds it convenient for their own purposes.\n\nThe main takeaways from this NEW content chunk are:\n\n* The author has a friend whose cat would hide under the bed in the same spot every time the doorbell rang.\n* The author finds this quirk convenient, as it allows them to easily collect the cat when needed.\n* The author seems to be entertained by the cat's behavior, as they use phrases like \"1 cat added to your inventory\" and \"he didn't expect you to find him.\"\n* The author's tone is lighthearted and playful, suggesting that they don't take themselves too seriously and are able to laugh at the absurdity of the situation.",
+        "n_input_tokens": 5421,
+        "n_output_tokens": 190
+    }
+}
