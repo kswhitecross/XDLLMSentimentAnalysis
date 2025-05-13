@@ -1,0 +1,258 @@
+long llama1B responses:
+1630: Even though post does not have a body, and the title is not informative about what the 
+post is actually about, LLM uses comments to conclude that the post has to do with users being 
+worried about Valve/Steam going offline and them therefore losing their games. Model concludes just
+from the comments alone that users can be reassured that even if Steam goes offline, they'll have
+access to their games. But in reality the meme in the reddit post is implying that a new announcement 
+from Steam saying that gamers don't own their games will push gamers to pirate games instead. This isn't 
+necessarily the LLM's fault because it doesn't have any idea of what the meme caption is in the reddit post
+
+Score: 1.8
+
+430: LLM uses title of document to infer that today is election day in the US. Model correctly
+assesses the comments of the post as being mixed and picks out specific examples such as when 
+someone said that it was a bad day to stop drinking for them. However, model says that the comments
+are talking about specific candidates, when that is not the case for the inquiry document.
+
+Score: 2.5
+
+2198: LLM correctly assesses that comments are talking about how there's many fields of science that
+humans have never discovered as the post title is "There are likely entire fields of science yet to be discovered that
+ we are currently completely blind to.". However, LLM formats output in a weird way by asking itself numerous questions
+in the form of "**What is the main takeaway from the NEW content chunk about <X>**" where X is a certain topic of 
+interest
+
+Score: 1.5
+
+2045: LLM outputs takeaways in clean numbered format (1. 2. etc.). LLM correctly summarizes what thoughts 
+people have about time travel and the hypothetical scenarios that would play out if time travel existed, for example, people
+going back in time to tell the founding fathers to make sure to give Supreme Court judges term limits
+
+Score: 2.8
+
+2049: LLM correctly knows that original post title is talking about how it would be unrealistic for there to 
+be no teen pregnancies at Hogwarts given they didn't have sex ed class. LLM also picks out a specific comment about 
+the "Fetus Deletus" spell and says that comment is humourous and light hearted. 
+
+Score: 3.0
+
+long llama3B responses:
+
+796: Model correctly knows post is talking about Ukraine invading Russia in response to Russia's intitial invation. However,
+LLM incorrectly says that the situation is being viewed with a mix of emotions, even though comments tend to heavily be in favor
+of Ukraine pushing into Russian territory to get back at Putin. Model also says that Russian forces massacred innocent people during
+the Beslan school siege, which is incorrect. Even though hundreds did die during the siege, it was not Russian forces themselves that
+were responsible for the deaths of those at the school. It is true that Russian forces were partially responsible for the deaths of
+those in the siege, but to say they "massacred" hundreds of innocent civilians is false.
+
+Score: 1.6
+
+355: Model incorrectly says that post is talking about a variety of topics when this is incorrect: The post is asking users what behaviors
+others might exhibit that others do not when addicted to porn, or when they watch too much porn. Model says that people are talking about poltiics, 
+Elon Musk, etc., when this is incorrect. Only one of the points returned by the model discusses the topic of pornography at all. This hallucination
+might be because the in context domain is World News.
+
+Score: 1.2
+
+2134: Model correctly identifies that reddit post is about how you technically recycle your own farts by smelling them. Model correctly assesses that
+comments are humorous and lighthearted and even picks out a specific comment where a user says you're doing the environment a favor by smelling your
+own farts as to not put the methane into the atmosphere
+
+Score: 3.0
+
+1791: Model correctly identifies reddit post is about a new Superman film teaser trailer. Model correctly assessses comments as humourous and even
+picks out a specific comment about Superman's dog Krypto and the anticipation of exploring the dynamics between him and Superman
+
+Score: 3.0
+
+725: Model correctly says that reddit post topic is the department of Treasury discovering a server funded by the Russian government was used to helpful
+interfere in the 2024 US election using AI. Model gives further points about the story as a whole but does not mention what any users in the comments think
+about the story.
+
+Score: 2.3
+
+long llama8B responses:
+
+1725: LLM is sort of correct in identifying the topic of discussion: The meme image is joking that when people get to work they're happy but after only 10 minutes
+of their shirt they start to dislike human beings. Model only uses comments to assess that the general topic is still workers and how they become stressed out at 
+work a lot, especially when interacting with customers
+
+Score: 2.7
+
+713: LLM correctly identifies that the topic is discussion is the unsealing of a document which claims that over 2800 influencers have been associated with
+Russian propaganda as a part of a larger Russian disinfo scheme. Model correctly identifies that comments are negative and express a mix of emotions such as outrage
+and anticipation. Model also includes what topics the user is interested based on in context documents, althought there is nothing in the prompt
+which tells the LLM to tell the user what themes or interests they have shown interest in via the in context documents
+
+Score: 2.5
+
+1617: Model correctly identifies the topic of discussion being the semi-retirement of a YouTuber, in this case PewDiePie. The original meme references how he 
+is now just the 10th most subscribed channel on YouTube. Model identifies that PewDiePie is now focusing on other aspects of life instead of just YouTube, such
+as family. The only negative of the LLM's response is that it does not explicity recognize that PewDiePie is the youtuber of question, but that's not its fault
+considering he is mentioned nowhere in the comments or post title
+
+Score: 2.9
+
+611: LLM correctly identifies tthe topic of discussion as the discontinuation of the mobile game "The Simpsons: Tapped Out". Model correctly identifies the tone of
+the comments as reminiscing, but the entire response is in the second person: For example, the model says: "The game was a way for you to connect with your father during 
+a difficult time in your family, as your parents were going through a divorce." as if the user is writing the comments on the reddit post, not third parties. Nonetheless,
+model still gets the themes of the responses correct
+
+Score: 2.5
+
+1811: Model correctly identifies topic of discussion to be the recent death of actor Donald Sutherlnd at the age of 88. Model correctly identifies that comments praise his 
+acting skills and his performances. LLM makes reasonable assumptions about the user, such as them being interested in movies and good acting performances. 
+
+Score: 3.0
+
+long llama70B responses:
+
+1481: Model correctly identifies that Sean Diddy Combs is the person of interest in this discussion. Model correctly identifies that some commenters beleive there's a 
+chance his life is in danger while others make jokes such as one person commenting "P-Deady". 
+
+Score: 2.8
+
+96: Model correctly identifies that the reddit post author is posting about how they had to watch their 10 year old brother in their college dorm, despite the dorm being only 
+for individuals over the age of 18. Model correctly identifies that commenters shared similar stories.
+
+Score: 3.0
+
+684: Model correctly identifies that the topic of discussion is election victory of Donald Trump and how the Russian government thinks his victory will be "useful" for them. 
+Model makes a great obersavation by saying that the comments worry about Trump becoming more "authoritatian" even though the phrase authoritarian is seen nowhere in the comments. 
+Model also observes that European commenters are concerned about dependencies on the US, while saying the EU may need to look elsewhere for trading partners.
+
+Score: 3.0
+
+388: Model correctly identifies that users are talking about what activities most often lead to sex. Model gives a good summary of comments, saying that users think that
+activities such as rubbing legs together, drinking, and nighttime pool parties lead to sex most often. One commenter also mentioned that cudding produces boners and then the
+urge to put that boner somewhere leads to sex, although model just says that the commenter said that cudding itself leads to sex, which is true, but doesn't include the full 
+context of the comment by leaving out the term boner
+
+Score: 2.9
+
+2156: Model correctly identifies that reddit post is about how gamers have geographical knowledge of places that don't exist. Model correctly identifies that gamers can have 
+extremely detailed knowledge about virtual geographic environments even though it's a useless skill. However, model fails to extract example comments of some places that gamers
+tend to have good geographic knowlege, such as Liberty City and Los Santos from GTA 4 and 5 respectively
+
+Score: 2.6
+
+original llama1B responses:
+
+3898: Model correctly identifies that reddit post is about Spain's plans to enshrine gay marriage and abortion rights in their constitution. One minor error about response is 
+that model incorrectly identifies the reddit comments as "the author" instead of a group of commenters. Model infers that commenters are talking about how the change would signal
+to international community that Spain is committed to human rights, but no comment specifically says anything about the rest of the worlds perspective on the change
+
+Score: 2.2
+
+8359: Model correctly identifies that reddit post is about TV characters. This specific post is about actors who are hated because they played their roles too well. However, no
+one in the comments talks about J.D. from Narcos. No one in the comments even discusses the show Narcos. Model again incorrectly addresses comments as "the author". Model says
+"The author is likely a fan of the TV show "Narcos" or has a strong opinion about it" but then also says "The author is not necessarily a fan of J.D. or the TV show "Narcos". which
+are contradictory statements
+
+Score: 1.4
+
+7223: Model correctly identifies that Kanye West being accused of drugging and raping a former associate of Diddy is the topic of discusson. Model summarizes commenters 
+thoughts correctly, although it says that the accusation against Kanye West is serious two times, which is not necessary. 
+
+Score: 2.4
+
+3556: Model correctly identifies that the topic of intersest is a Russian disinformation scheme involving social media influencers. Model summarizes the concerns of the comments
+section correctly, saying this is just a small part of disinformation in US elections and politics. Only flaw is that model calls the comments section "the author"
+
+Score: 2.7
+
+762: Model correctly identifies that post is talking about an absurd everyday situation. Model correctly identifies that users are talking about cats hiding random places. The model
+however fails to identify that the cat in the original post is hiding underneath a toilet despite users in the comments talking about it. Model also addresses two people as part of 
+the post "the speaker" and "the speaker's friend" which is incorrect
+
+Score: 2.1
+
+original llama3B responses: 
+
+441: Model correctly identifies topic of interest to be a 10 year old spending time with his brother in a 18+ dorm. Model concisely summarizes comments being nostalgic about similar 
+events that happened in their own lives
+
+Score: 3.0
+
+6905: Model correctly identifies that reddit post is talking about how successful Sabrina Carptener was in getting people to register to vote through HeadCount. Model correctly identifies
+comments as being over positive and supportive of her. Only flaw is that model fails to identify "Olivia" as Olivia Rodrigo and just uses her first name when referring to her as a person
+
+Score: 2.9
+
+149: Model does not correctly identify that post itself is joking about another catastrophic event. Model says "You're expressing frustration with the repetition of certain trends or concepts"
+which isn't really true. Model alsos incorrectly refers to entire comments section as "You". Model however does correctly say there is something to be pessimistic but does not identify the original
+post or comments section as humorous, which is the point of the post
+
+Score: 1.3
+
+10447: Model correctly identifies that the topic of discussion is "room temperature IQ" but does not correctly identify that this would be even more insulting in places like the UK where than
+they use Celsius. Model thinks that commenters are talking about how IQ is interpreted in different countries, but that isn't really true as the whole post is a joke. Model also incorrectly says
+someone in comments estimated it would be 1 in 20 people that have room temperature IQ in Eueope, but commenter actually said 1 in 20 million.
+
+Score: 1.8
+
+760: Model correctly identifies as post talking about a cat hiding in weird places, but incorrectly identifies cat in this post as hiding under a bed when it is in fact hiding 
+under a toilet. Model also incorrectly identifies the comments section and original poster as "the author"
+
+Score: 2.3
+
+original llama8B responses: 
+
+695: Model correctly identifies post as humorous but incorrectly assumes that user consumed this reddit post as that was not part of the prompt (never told LLM user "consumed" chunk).
+Model incorrectly identifies a commentor photoshopping his wife's head into the picture as the OP of the reddit post. Model doesn't understand that the user has not consumed the NEW chunk
+and is implying in its responses that user has consumeed the NEW content chunks. Model does correctly pick out the example where commenter photoshopped wife's head with speech bubble
+
+Score: 1.5
+
+2246: Model correctly idenfities that post is about a moment in Call of Duty history, but does not attempt to identify it. Model correctly idenfities moment as nostalgic, and correctly
+idenfities that comments are talking about another nostalgic game, WoW. Model incorrectly assumes that user consumed content chunk by saying things like "The NEW content
+ chunk references the guild chat in World of Warcraft and the public chat channels, which suggests that you are interested in community and shared experiences"
+
+Score: 2.2
+
+260: Model incorrectly refers to previous content consumption of user even though it was told to not do so. Model incorrectly says post is about a cat pretending to hide or be 
+asleep. Model is correct in saying the tone of the post is playful and humorous and still correctly identifies a cat as the subject of the post
+
+Score: 1.8
+
+4877: Model correctly states that reddit post is talking about how Minnesota is the only state since 1976 to have voted for the Democratic presidential candidate in every US presidential election.
+Model correctly summarizes observations users in comments have, such as Texas having voted blue more recently than Minnesota voted red
+
+Score: 3.0
+
+8655: Model correctly identifies that post is talking about the company Valve and their product steam, but does not seem to understand the pun of the company Valve releasing Steam.
+Model is correct in identifying the content as overall humourous and nothing to be taken seriously.
+
+Score: 2.3
+
+original llama70B responses: 
+
+1044: Model sort of correctly identifies the topic of interest as DoorDash and their demand tests. One flaw is the response doesn't mention anything about the pizzeria owner's
+discovery of the demand tests, as owner is technically subject of post. Model correctly picks out little details from comment, like SoftBank CEO reportedly comparing himself to Jesus
+
+Score: 2.8
+
+1497: Model correctly identifies that Reddit post is about Republicans frequently using music at events without permission from artists or labels. Model gives a good summary of comments.
+Only issue is that model does not explicity say the Republican in question is Donald Trump, who is the subject of the post, not Republicans in general.
+
+Score: 2.7
+
+1327: Model correctly says that post is about Taylor Switft encouraging voters to register to vote on Vote.gov. Model correctly idenfities that comments are talking about the importance
+of voting in swing states such as Texas and Florida. Model correctly says that commenters are comparing American voting system to that of Norway and Australia.
+
+Score: 3.0
+
+586: Model correctly identifies that reddit post is about how old video games such as Call of Duty and Halo, have lost popularity. Model correctly identifies that little to
+no people now play these games, and model correctly identifies comments as nostalgic.
+
+Score: 3.0
+
+847: Model correctly suggests that reddit post is talking about Elon Musk and his suspected connections with Russian president Vladimir Putin. Model is correct in saying that 
+comments are rather speculative and borderline conspiratorial. However, model references previous content chunks and the user's preferences from those chunks, which
+it was not instructed to do.
+
+Score: 2.5
+
+
+
+
