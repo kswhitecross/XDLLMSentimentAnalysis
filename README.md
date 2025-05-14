@@ -81,7 +81,29 @@ This will produce a `sentiment.jsonl` file alongside `results.jsonl`, with each 
 
 ## Pyschobench
 
-[TODO]
+Refer to `psychobench/`, which includes our custom generator under `example_generator/` for the purpose of locally running a Llama model given in-context samples from subreddits rather than using OpenAI's API. 
 
+To run the BFI questionnaire on Llama-3.1-8B-Instruct given in-context domain samples from a subreddit by shuffling the questions to answer 4x on top of the original order, use
 
+<pre> python run_psychobench.py \
+--model meta-llama/Llama-3.1-8B-Instruct \
+--questionnaire BFI \
+--shuffle-count 4 \
+--test-count 1 \
+--in-context-samples-prompt may_9_prompt_for_psychobench.txt \
+--subreddit [subreddit name] \
+--num-comments 10 \
+--num-in-context-samples 10 \
+--use-flash-attn \ </pre> 
 
+which includes flash attention, or that can be ommitted. 
+
+To run a control without a subreddit provided, simply ommit the `--subreddit` argument.
+
+We repeated this process for all 10 of the subreddits used as the in-context domain, each time moving the results for a single subreddit to a separate folder to avoid previous subreddit results being overwritten. We also ran it without any subreddit provided, as a control for the LLM's responses to the BFI questionnaire.
+
+After accumulating all of the subreddit and control questionnaire answers into one single `results/` subdirectory in the psychobench directory, to compute scores for each BFI category per subreddit, produce tables to compare them against the control LLM response and human crowd with statistical tests, and produce a bar plot of trait scores across all in-context domain LLM variations in one fell swoop, run
+ 
+`python  psychobench/psychobench_BFI_scoring.py`
+
+This populates a `tables/` subdirectory with all of the scores/stats, with bar plots of category scores under the `figures/` subdirectory

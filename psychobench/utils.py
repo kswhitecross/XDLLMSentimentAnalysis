@@ -2,12 +2,14 @@ import csv
 import json
 import os
 import random
-import scipy.stats as stats
-from statistics import mean, stdev
-import numpy as np
-import matplotlib.pyplot as plt
 import sys
+import numpy as np
 import pandas as pd
+import seaborn as sns
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+from statistics import mean, stdev
+from matplotlib.patches import Patch
 
 
 def get_questionnaire(questionnaire_name):
@@ -27,7 +29,6 @@ def get_questionnaire(questionnaire_name):
         raise ValueError("Questionnaire not found.")
 
     return questionnaire
-
 
 
 def plot_bar_chart(value_list, cat_list, item_list, save_name, title="Bar Chart"):
@@ -56,6 +57,87 @@ def plot_bar_chart(value_list, cat_list, item_list, save_name, title="Bar Chart"
     ax.legend()
     plt.savefig(f'psychobench/results/figures/{save_name}', dpi=300)
 
+
+
+
+# AI Attribution for ChatGPT:
+# Prompt 1: plot_bar_chart func code + "How to plot not just the current results but across all the subreddits, and human crowd"
+# Reflection: It did what was necessary, then I had to tweak the colors myself and titles and save paths etc
+# Prompt 2: plot_bar_chart_special func code before adding more legends than just the subreddits + "How to add separate legend for human crowd and baseline, without them overlapping over each other"
+# Reflection: It wasn't perfect but at least they weren't overlapping, I had to iteratively tell it that it wasn't working until something clicked
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def add_stacked_legends(ax, legend_data, base_x=1.02, top_y=1.0, line_height=0.07):
+
+    y = top_y
+    for handles, title in legend_data:
+        if not handles:
+            continue
+        n_lines = len(handles) + 1  # +1 for title
+        legend = ax.legend(
+            handles=handles,
+            title=title,
+            loc="upper left",
+            bbox_to_anchor=(base_x, y),
+            frameon=False
+        )
+        ax.add_artist(legend)
+        y -= n_lines * line_height  # Decrease Y for next legend
+
+
+def plot_bar_chart_special(value_list, cat_list, item_list, save_name, title="Bar Chart"):
+    num_bars = len(value_list)
+    bar_width = 1 / num_bars * 0.8
+
+    fig, ax = plt.subplots(figsize=(10, 10)) 
+
+    # Need 12 colors, more contrast than the OG bar plot func from Psychobench
+    base_colors = sns.color_palette("tab20", 12)
+    br = [np.arange(len(cat_list)) + x * bar_width for x in range(num_bars)]
+
+
+    llm_patches = []
+    human_patches = []
+    baseline_patches = []
+
+
+    for i, values in enumerate(value_list):
+        color = base_colors[i % len(base_colors)]
+        label = item_list[i]
+
+
+        for j, value in enumerate(values):
+            ax.bar(br[i][j], value, color=color, width=bar_width, alpha=1, label=label if j == 0 else None)
+
+
+        # This is my cheating type way to avoid redundancy when the legend title is the same as the key name, just making one empty instead
+        if label == "Human Crowd":
+            human_patches.append(Patch(color=color, label=''))
+        elif label == "":
+            baseline_patches.append(Patch(color=color, label=''))
+        else:
+            llm_patches.append( Patch(color=color, label=label))
+
+
+    # Set titles and axes
+    ax.set_title(title)
+    ax.set_xlabel('Categories', fontsize=12)
+    ax.set_ylabel('Score', fontsize=12)
+    ax.set_xticks([r + bar_width * (num_bars - 1) / 2 for r in range(len(cat_list))])
+    ax.set_xticklabels(cat_list, rotation=45, ha='right')
+
+
+    legend_data = [
+    (llm_patches, "In-Context Domain Fed To LLM"),
+    (baseline_patches, "Control LLM"),
+    (human_patches, "Human Crowd")
+]
+
+
+    add_stacked_legends(ax, legend_data)
+    plt.tight_layout(rect=[0, 0, 0.75, 1])
+    plt.savefig(f'psychobench/results/figures/{save_name}', dpi=300)
+    plt.close()
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 def generate_testfile(questionnaire, args):
@@ -158,9 +240,9 @@ def compute_statistics(questionnaire, data_list):
         
         if len(scores_list) < 2:
             raise ValueError("The test file should have at least 2 test cases.")
-        
+       
         results.append((mean(scores_list), stdev(scores_list), len(scores_list)))
-        
+       
     return results
 
 
@@ -352,7 +434,7 @@ def query_16personalities_api(scores):
     
     for index, score in enumerate(scores):
         payload['questions'][index]["answer"] = score
-    
+   
     headers = {
         "accept": "application/json, text/plain, */*",
         "accept-encoding": "gzip, deflate, br",
